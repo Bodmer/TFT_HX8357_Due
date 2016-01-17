@@ -1,6 +1,6 @@
 /***************************************************
   Arduino TFT graphics library targetted at the
-  Mega boards and HX8357B/C display drivers.
+  Due board, HX8357B/C and ILI9481 display drivers.
 
   This library has been derived from the Adafruit_GFX
   library and the associated driver library. See text
@@ -338,8 +338,8 @@ class TFT_HX8357_Due
     // Sketches should use setWindow(...) instead of this one
     void  setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 
-    void  hi_byte(byte hi);
-    void  lo_byte(byte lo);
+    void  hi_byte(uint16_t hi);
+    void  lo_byte(uint16_t lo);
 
   uint8_t  tabcolor;
 
