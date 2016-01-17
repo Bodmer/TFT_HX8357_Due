@@ -6,7 +6,7 @@ The library contains proportional fonts, different sizes can be enabled/disabled
 
 The library is designed to be slim and fast. Typically a clear screen for a 320 x 480 TFT will complete in only 12ms.
 
-The library is based on the Adafruit GFX library and the aim is to retain compatibility. Significant additions have been made to the library to boost the speed for the AVR processor and to add new features. The new graphics functions include different size proportional fonts and formatting features. There are a significant number of example sketches to demonstrate the different features.
+The library is based on the Adafruit GFX library and the aim is to retain compatibility. Significant additions have been made to the library to boost the speed for the Due processor and to add new features. The new graphics functions include different size proportional fonts and formatting features. There are a significant number of example sketches to demonstrate the different features.
 
 Configuration of the library font selections and other features is made by editting the User_Setup.h file in the library folder.  Fonts and features can easily be disabled by commenting out lines.
 
