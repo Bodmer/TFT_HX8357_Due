@@ -1,4 +1,4 @@
-//                            USER DEFINED SETTINGS V4
+//                            USER DEFINED SETTINGS V5
 //              This library supports the Mega and HX8357B/C display drivers only
 //
 //                 Set fonts to be loaded and speed up options below
@@ -75,7 +75,7 @@
 // rendering where size>1. Sketch then must not draw graphics/text outside screen
 // boundary. Code saving for no bounds check (i.e. commented out) is small.
 
-//#define CLIP_CHECK
+#define CLIP_CHECK
 
 
 // Render fonts slightly faster, only enable if you DO NOT use setTextSize(n)

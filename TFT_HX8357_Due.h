@@ -88,8 +88,8 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 // Set WR low
 #define WR_L REG_PIOC_CODR = 0x1 << 7
 
-// Hold WR low for one period to allow for setup time and set high
-#define WR_H REG_PIOC_CODR = 0x1 << 7; REG_PIOC_SODR = 0x1 << 7
+// Set WR high
+#define WR_H REG_PIOC_SODR = 0x1 << 7
 
 // Hold low for two periods then high
 #define WR_STB REG_PIOC_CODR = 0x1 << 7; REG_PIOC_CODR = 0x1 << 7;   REG_PIOC_SODR = 0x1 << 7

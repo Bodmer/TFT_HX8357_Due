@@ -171,8 +171,7 @@ void TFT_HX8357_Due::writecommand(uint8_t c)
 SETUP_CS_L;
 RS_L;
 hi_byte(0);
-lo_byte(c);
-WR_STB;
+lo_byte(c);WR_STB;
 RS_H;
 SETUP_CS_H;
 }
@@ -185,8 +184,7 @@ void TFT_HX8357_Due::writedata(uint8_t c)
 {
 SETUP_CS_L;
 hi_byte(c>>8);
-lo_byte(c);
-WR_STB;
+lo_byte(c);WR_STB;
 SETUP_CS_H;
 }
 
@@ -403,10 +401,12 @@ void TFT_HX8357_Due::drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t colo
   int16_t ddF_y = - r - r;
   int16_t x = 0;
 
+  if (color!=pixelfg) fgColor(color);
+
   drawPixel(x0  , y0 + r, color);
   drawPixel(x0  , y0 - r, color);
-  drawPixel(x0 + r, y0  , color);
-  drawPixel(x0 - r, y0  , color);
+  drawPixel(x0 + r, y0, color);
+  drawPixel(x0 - r, y0, color);
 
   while (x < r) {
     if (f >= 0) {
@@ -439,6 +439,8 @@ void TFT_HX8357_Due::drawCircleHelper( int16_t x0, int16_t y0, int16_t r, uint8_
   int16_t ddF_x = 1;
   int16_t ddF_y = -r -r;
   int16_t x     = 0;
+
+  if (color!=pixelfg) fgColor(color);
 
   while (x < r) {
     if (f >= 0) {
@@ -724,6 +726,7 @@ void TFT_HX8357_Due::fillTriangle (int16_t x1,int16_t y1,int16_t x2,int16_t y2,i
 void TFT_HX8357_Due::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color) {
 
   int16_t i, j, byteWidth = (w + 7) / 8;
+  if (color!=pixelfg) fgColor(color);
 
   for (j = 0; j < h; j++) {
     for (i = 0; i < w; i++ ) {
@@ -958,7 +961,7 @@ void TFT_HX8357_Due::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t co
   {
     setAddrWindow(x, y, x+5, y+8);
 
-    fgColor(color); bgColor(bg); // Setup the port values
+    fgColor(color); bgColor(bg);
 
     byte column[5];
     const uint8_t *flash_address = (const uint8_t *)font + c * 5;
@@ -988,7 +991,10 @@ void TFT_HX8357_Due::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t co
   }
   else
   {
-    const uint8_t *flash_address = (const uint8_t *)font + c * 5; 
+    const uint8_t *flash_address = (const uint8_t *)font + c * 5;
+
+    if (color!=pixelfg) fgColor(color);
+
     for (int8_t i = 0; i < 6; i++ ) {
       uint8_t line;
       if (i == 5)
@@ -1147,6 +1153,8 @@ void TFT_HX8357_Due::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t co
   #endif
 
 #else
+    if (color!=pixelfg) fgColor(color);
+
     for(yy=0; yy<h; yy++) {
       for(xx=0; xx<w; xx++) {
         if(!(bit++ & 7)) {
@@ -1198,17 +1206,17 @@ void TFT_HX8357_Due::setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16
   if (y0>y1) swap(y0,y1);
   //if((x1 >= _width) || (y1 >= _height)) return;
   CS_L;
-  RS_L; addrCmd(HX8357_CASET); WR_STB; RS_H;
-  lo_byte(x0>>8); WR_STB;
-  lo_byte(x0); WR_STB;
-  lo_byte(x1>>8); WR_STB;
-  lo_byte(x1); WR_STB;
-  RS_L; addrCmd(HX8357_PASET); WR_STB; RS_H;
-  lo_byte(y0>>8); WR_STB;
-  lo_byte(y0); WR_STB;
-  lo_byte(y1>>8); WR_STB;
-  lo_byte(y1); WR_STB;
-  RS_L; addrCmd(HX8357_RAMWR); WR_STB; RS_H;
+  addrCmd(HX8357_CASET);
+  lo_byte(x0>>8);WR_STB;
+  lo_byte(x0);WR_STB;
+  lo_byte(x1>>8);WR_STB;
+  lo_byte(x1);WR_STB;
+  addrCmd(HX8357_PASET);
+  lo_byte(y0>>8);WR_STB;
+  lo_byte(y0);WR_STB;
+  lo_byte(y1>>8);WR_STB;
+  lo_byte(y1);WR_STB;
+  addrCmd(HX8357_RAMWR);
 }
 
 /***************************************************************************************
@@ -1220,22 +1228,21 @@ void TFT_HX8357_Due::drawPixel(uint16_t x, uint16_t y, uint16_t color)
 {
   // Faster range checking, possible because x and y are unsigned
   if ((x >= _width) || (y >= _height)) return;
-
   if (color!=pixelfg) fgColor(color);
 
   CS_L;
-  RS_L; addrCmd(HX8357_CASET); WR_STB; RS_H;
-  lo_byte(x>>8); WR_STB;
-  lo_byte(x); WR_STB;
-  lo_byte(x>>8); WR_STB;
-  lo_byte(x); WR_STB;
-  RS_L; addrCmd(HX8357_PASET); WR_STB; RS_H;
-  lo_byte(y>>8); WR_STB;
-  lo_byte(y); WR_STB;
-  lo_byte(y>>8); WR_STB;
-  lo_byte(y); WR_STB;
-  RS_L; addrCmd(HX8357_RAMWR); WR_STB; RS_H;
-  fgWrite(); WR_STB;
+  addrCmd(HX8357_CASET);
+  lo_byte(x>>8);WR_STB;
+  lo_byte(x);WR_STB;
+  lo_byte(x>>8);WR_STB;
+  lo_byte(x);WR_STB;
+  addrCmd(HX8357_PASET);
+  lo_byte(y>>8);WR_STB;
+  lo_byte(y);WR_STB;
+  lo_byte(y>>8);WR_STB;
+  lo_byte(y);WR_STB;
+  addrCmd(HX8357_RAMWR);
+  fgWrite(); WR_STB;;
   CS_H;
 }
 
@@ -1248,7 +1255,7 @@ void TFT_HX8357_Due::pushColor(uint16_t color)
   if (color!=pixelfg) fgColor(color);
   CS_L;
   fgWrite();
-  WR_STB;
+  WR_STB;;
   CS_H;
 }
 
@@ -1261,7 +1268,7 @@ void TFT_HX8357_Due::pushColor(uint16_t color, uint16_t len)
   if (color!=pixelfg) fgColor(color);
   CS_L;
   fgWrite();
-  while(len--) {WR_L;WR_H;}
+  while(len--) {WR_STB;}
   CS_H;
 }
 
@@ -1279,9 +1286,9 @@ void TFT_HX8357_Due::pushColors(uint16_t *data, uint8_t len)
   CS_L;
   while(len--) {
     uint16_t color = *data++;
-    lo_byte(color);
-    hi_byte(color >> 8);
-    WR_STB; 
+    if (color!=pixelfg) fgColor(color);
+    fgWrite();
+    WR_STB;
   }
   CS_H;
 }
@@ -1297,8 +1304,7 @@ void TFT_HX8357_Due::pushColors(uint8_t *data, uint16_t len)
   CS_L;
   while(len--) {
     hi_byte(*data++);
-    lo_byte(*data++);
-    WR_STB; 
+    lo_byte(*data++);WR_STB;
   }
   CS_H;
 }
@@ -1314,6 +1320,7 @@ void TFT_HX8357_Due::pushColors(uint8_t *data, uint16_t len)
 
 void TFT_HX8357_Due::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 {
+
   boolean steep = abs(y1 - y0) > abs(x1 - x0);
   if (steep) {
     swap(x0, y0);
@@ -1325,13 +1332,12 @@ void TFT_HX8357_Due::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, ui
     swap(y0, y1);
   }
 
-  int16_t dx = x1 - x0, dy = abs(y1 - y0);;
+  if (color!=pixelfg) fgColor(color);
 
+  int16_t dx = x1 - x0, dy = abs(y1 - y0);;
 
   int16_t err = dx>>1, ystep=-1, xs=x0, dlen=0;
   if (y0 < y1) ystep = 1;
-
-  if (color!=pixelfg) fgColor(color);
 
   CS_L;
   // Split into steep and not steep for FastH/V separation
@@ -1341,22 +1347,21 @@ void TFT_HX8357_Due::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, ui
       err -= dy;
       if (err < 0) {
         err += dx;
+        addrCmd(HX8357_CASET);
+        lo_byte(y0>>8);WR_STB;
+        lo_byte(y0);WR_STB;
+        lo_byte(y0>>8);WR_STB;
+        lo_byte(y0);WR_STB;
+        addrCmd(HX8357_PASET);
+        lo_byte(xs>>8);WR_STB;
+        lo_byte(xs);WR_STB;
+        lo_byte(x1>>8);WR_STB;
+        lo_byte(x1);WR_STB;
+        addrCmd(HX8357_RAMWR);
 
-        RS_L; addrCmd(HX8357_CASET); WR_STB; RS_H;
-        lo_byte(y0>>8); WR_STB;
-        lo_byte(y0);    WR_STB;
-        lo_byte(y0>>8); WR_STB;
-        lo_byte(y0);    WR_STB;
-        RS_L; addrCmd(HX8357_PASET); WR_STB; RS_H;
-        lo_byte(xs>>8); WR_STB;
-        lo_byte(xs);    WR_STB;
-        lo_byte(x1>>8); WR_STB;
-        lo_byte(x1);    WR_STB;
-        RS_L; addrCmd(HX8357_RAMWR); WR_STB; RS_H;
+        fgWrite(); WR_STB; dlen--;
 
-        fgWrite();
-
-        while (dlen)   { dlen--;WR_L;WR_H;}
+        while (dlen)   { dlen--; WR_STB;}
 
         y0 += ystep; xs=x0+1;
       }
@@ -1371,21 +1376,21 @@ void TFT_HX8357_Due::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, ui
       if (err < 0) {
         err += dx;
 
-        RS_L; addrCmd(HX8357_CASET); WR_STB; RS_H;
-        lo_byte(xs>>8); WR_STB;
-        lo_byte(xs);    WR_STB;
-        lo_byte(x1>>8); WR_STB;
-        lo_byte(x1);    WR_STB;
-        RS_L; addrCmd(HX8357_PASET); WR_STB; RS_H;
-        lo_byte(y0>>8); WR_STB;
-        lo_byte(y0);    WR_STB;
-        lo_byte(y0>>8); WR_STB;
-        lo_byte(y0);    WR_STB;
-        RS_L; addrCmd(HX8357_RAMWR); WR_STB; RS_H;
+        addrCmd(HX8357_CASET);
+        lo_byte(xs>>8);WR_STB;
+        lo_byte(xs);WR_STB;
+        lo_byte(x1>>8);WR_STB;
+        lo_byte(x1);WR_STB;
+        addrCmd(HX8357_PASET);
+        lo_byte(y0>>8);WR_STB;
+        lo_byte(y0);WR_STB;
+        lo_byte(y0>>8);WR_STB;
+        lo_byte(y0);WR_STB;
+        addrCmd(HX8357_RAMWR);
 
-        fgWrite();
+        fgWrite(); WR_STB; dlen--;
 
-        while(dlen){ dlen--;WR_L;WR_H;}
+        while(dlen){ dlen--; WR_STB;}
 
         y0 += ystep; xs=x0+1;
       }
@@ -1408,17 +1413,18 @@ void TFT_HX8357_Due::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t col
 #endif
 
   CS_L;
-  RS_L; addrCmd(HX8357_CASET); WR_STB; RS_H;
-  lo_byte(x>>8); WR_STB;
-  lo_byte(x); WR_STB;
-  lo_byte(x>>8); WR_STB;
-  lo_byte(x); WR_STB;
-  RS_L; addrCmd(HX8357_PASET); WR_STB; RS_H;
-  lo_byte(y>>8); WR_STB;
-  lo_byte(y); WR_STB;
-  y+=h-1; lo_byte(y>>8); WR_STB;
-  lo_byte(y); WR_STB;
-  RS_L; addrCmd(HX8357_RAMWR); WR_STB; RS_H;
+  addrCmd(HX8357_CASET);
+  lo_byte(x>>8);WR_STB;
+  lo_byte(x);WR_STB;
+  lo_byte(x>>8);WR_STB;
+  lo_byte(x);WR_STB;
+  addrCmd(HX8357_PASET);
+  lo_byte(y>>8);WR_STB;
+  lo_byte(y);WR_STB;
+  y+=h-1;
+  lo_byte(y>>8);WR_STB;
+  lo_byte(y);WR_STB;
+  addrCmd(HX8357_RAMWR);
 
   if (color!=pixelfg) fgColor(color);
   fgWrite();
@@ -1429,7 +1435,7 @@ void TFT_HX8357_Due::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t col
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
   }
-  while (h--) { WR_L;WR_H;}
+  while (h--) { WR_STB;}
   CS_H;
 }
 
@@ -1447,18 +1453,18 @@ void TFT_HX8357_Due::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t col
 
 
   CS_L;
-  RS_L; addrCmd(HX8357_CASET); WR_STB; RS_H;
-  lo_byte(x>>8); WR_STB;
-  lo_byte(x);    WR_STB;
+  addrCmd(HX8357_CASET);
+  lo_byte(x>>8);WR_STB;
+  lo_byte(x);WR_STB;
   x+=w-1;
-  lo_byte(x>>8); WR_STB;
-  lo_byte(x);    WR_STB;
-  RS_L; addrCmd(HX8357_PASET); WR_STB; RS_H;
-  lo_byte(y>>8); WR_STB;
-  lo_byte(y);    WR_STB;
-  lo_byte(y>>8); WR_STB;
-  lo_byte(y);    WR_STB;
-  RS_L; addrCmd(HX8357_RAMWR); WR_STB; RS_H;
+  lo_byte(x>>8);WR_STB;
+  lo_byte(x);WR_STB;
+  addrCmd(HX8357_PASET);
+  lo_byte(y>>8);WR_STB;
+  lo_byte(y);WR_STB;
+  lo_byte(y>>8);WR_STB;
+  lo_byte(y);WR_STB;
+  addrCmd(HX8357_RAMWR);
 
   if (color!=pixelfg) fgColor(color);
   fgWrite();
@@ -1469,7 +1475,7 @@ void TFT_HX8357_Due::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t col
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
   }
-  while(w--){ WR_L;WR_H;}
+  while(w--){ WR_STB;}
   CS_H;
 }
 
@@ -1515,7 +1521,7 @@ void TFT_HX8357_Due::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16
     WR_STB;WR_STB;WR_STB;WR_STB;
   }
 
-  while(hw--) { WR_L;WR_H;}
+  while(hw--) { WR_STB;}
   CS_H;
 }
 
@@ -1881,7 +1887,7 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
     else
       // Faster drawing of characters and background using block write
     {
-
+      if ((y + height - 1) >= _height) y = _height - height;
       setAddrWindow(x, y, (x + w * 8) - 1, y + height - 1);
 
       if(textbgcolor!=pixelbg) bgColor(textbgcolor);
@@ -1963,7 +1969,7 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
               // textsize > 1 so pixel count will be a multiple of 4
               while (tnp) { tnp-=4; WR_STB;WR_STB;WR_STB;WR_STB; }
             }
-            else { WR_L; WR_H; }
+            else { WR_STB; }
 
             px += textsize;
 
@@ -1995,12 +2001,12 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
         line = pgm_read_byte(flash_address++);
         if (line & 0x80) {
           line &= 0x7F;
-          fgWrite();
+          fgWrite(); WR_H;
         }
         else {
-          bgWrite();
+          bgWrite(); WR_H;
         }
-        line++; w -= line;
+        w -= (line+1);
         while(line>3){ line-=4; WR_STB; WR_STB; WR_STB; WR_STB; }
         while(line)  { line--;  WR_STB;}
       }
@@ -2221,11 +2227,11 @@ int16_t TFT_HX8357_Due::drawRightString(char *string, int16_t dX, int16_t poY, i
 ** Function name:           drawNumber
 ** Description:             draw a long integer
 ***************************************************************************************/
-int16_t TFT_HX8357_Due::drawNumber(long long_num, int16_t poX, int16_t poY, int16_t font)
+int16_t TFT_HX8357_Due::drawNumber(int32_t long_num, int16_t pX, int16_t pY, int16_t font)
 {
   char str[12];
   ltoa(long_num, str, 10);
-  return drawString(str, poX, poY, font);
+  return drawString(str, pX, pY, font);
 }
 
 /***************************************************************************************
@@ -2345,37 +2351,23 @@ void TFT_HX8357_Due::hi_byte(uint16_t hi)
 {
 
   //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
-  //                                vv                Marker for register bits used
-  REG_PIOA_CODR = 0b00000000000000001100000000000000; // Clear bits
-  REG_PIOA_SODR = ((hi & 0x04)<<13) | ((hi & 0x02)<<13);;                                // Now write the bits
+  //                     B          AA      AD  DDDD  Marker for register bits used
+  REG_PIOA_CODR = 0b00000000000000001100000010000000; // Clear bits
+  REG_PIOB_CODR = 0b00000100000000000000000000000000; // Clear bits
+  //                                        W         // WR bit
+  REG_PIOC_CODR = 0b00000000000000000000000010111110; // Clear WR bit
+  REG_PIOD_CODR = 0b00000000000000000000011001001111; // Clear bits
 
-  //                       v                            Marker for register bits used
-  //REG_PIOB_CODR = 0b00000100000000000000000000000000; // Clear bits
-  (hi & 0x01) ? REG_PIOB_SODR = 0x4000000 : REG_PIOB_CODR = 0x4000000;
-
-  //                                         v  vvvv  Marker for register bits used
-  REG_PIOD_CODR = 0b00000000000000000000000001001111; // Clear bits
-  REG_PIOD_SODR = ((hi&0x78) >> 3) | ((hi&0x80) >> 1);                                // Now write the bits
-
-  // Legacy code not used
-  // Set or clear bits (convenient but may not be fastest way)
-  //                                     Port.bit
-  //if(hi&0x80) REG_PIOD_SODR = 0x1 << 6;  // D.6
-  //else        REG_PIOD_CODR = 0x1 << 6;
-  //if(hi&0x40) REG_PIOD_SODR = 0x1 << 3;  // D.3
-  //else        REG_PIOD_CODR = 0x1 << 3;
-  //if(hi&0x20) REG_PIOD_SODR = 0x1 << 2;  // D.2
-  //else        REG_PIOD_CODR = 0x1 << 2;
-  //if(hi&0x10) REG_PIOD_SODR = 0x1 << 1;  // D.1
-  //else        REG_PIOD_CODR = 0x1 << 1;
-  //if(hi&0x08) REG_PIOD_SODR = 0x1 << 0;  // D.0
-  //else        REG_PIOD_CODR = 0x1 << 0;
-  //if(hi&0x04) REG_PIOA_SODR = 0x1 << 15; // A.15
-  //else        REG_PIOA_CODR = 0x1 << 15;
-  //if(hi&0x02) REG_PIOA_SODR = 0x1 << 14; // A.14
-  //else        REG_PIOA_CODR = 0x1 << 14;
-  //if(hi&0x01) REG_PIOB_SODR = 0x1 << 26; // B.26
-  //else        REG_PIOB_CODR = 0x1 << 26;
+  // The compiler efficiently codes this
+  // so it is quite quick.               Port.bit
+  if (hi&0x8000) REG_PIOD_SODR = 0x1 << 6;  // D.6
+  if (hi&0x4000) REG_PIOD_SODR = 0x1 << 3;  // D.3
+  if (hi&0x2000) REG_PIOD_SODR = 0x1 << 2;  // D.2
+  if (hi&0x1000) REG_PIOD_SODR = 0x1 << 1;  // D.1
+  if (hi&0x0800) REG_PIOD_SODR = 0x1 << 0;  // D.0
+  if (hi&0x0400) REG_PIOA_SODR = 0x1 << 15; // A.15
+  if (hi&0x0200) REG_PIOA_SODR = 0x1 << 14; // A.14
+  if (hi&0x0100) REG_PIOB_SODR = 0x1 << 26; // B.26
 
 }
 
@@ -2387,23 +2379,22 @@ void TFT_HX8357_Due::hi_byte(uint16_t hi)
 void TFT_HX8357_Due::lo_byte(uint16_t lo)
 {
 
-  //                                     vv v vvvvv   Marker for register bits used
-  REG_PIOD_CODR = 0b00000000000000000000011000000000; // Clear bits
-  REG_PIOD_SODR = ((lo&0x80) << 2) | ((lo&0x20) <<5); // Set them
+  //                                     DD A CCCCC   Marker for register bits used
   REG_PIOA_CODR = 0b00000000000000000000000010000000; // Clear bits
-  REG_PIOA_SODR = ((lo&0x40) << 1);                   // Set them
-  REG_PIOC_CODR = 0b00000000000000000000000000111110; // Clear bits
-  REG_PIOC_SODR = ((lo&0x10) >> 3) | ((lo&0x08) >> 1) | ((lo&0x04) << 1) | ((lo&0x02) << 3) | ((lo&0x01) << 5);
+  //                                        W         // WR bit
+  REG_PIOC_CODR = 0b00000000000000000000000010111110; // Clear WR bit as well
+  REG_PIOD_CODR = 0b00000000000000000000011000000000; // Clear bits
 
-  // Legacy code to set or clear bits       Port.bit
-  //if (lo&0x80) REG_PIOD_SODR = 0x1 << 9;  // D.9
-  //if (lo&0x40) REG_PIOA_SODR = 0x1 << 7;  // A.7
-  //if (lo&0x20) REG_PIOD_SODR = 0x1 << 10; // D.10
-  //if (lo&0x10) REG_PIOC_SODR = 0x1 << 1;  // C.1
-  //if (lo&0x08) REG_PIOC_SODR = 0x1 << 2;  // C.2
-  //if (lo&0x04) REG_PIOC_SODR = 0x1 << 3;  // C.3
-  //if (lo&0x02) REG_PIOC_SODR = 0x1 << 4;  // C.4
-  //if (lo&0x01) REG_PIOC_SODR = 0x1 << 5;  // C.5
+  // The compiler efficiently codes this
+  // so it is quite quick.              Port.bit
+  if (lo&0x80) REG_PIOD_SODR = 0x1 << 9;  // D.9
+  if (lo&0x40) REG_PIOA_SODR = 0x1 << 7;  // A.7
+  if (lo&0x20) REG_PIOD_SODR = 0x1 << 10; // D.10
+  if (lo&0x10) REG_PIOC_SODR = 0x1 << 1;  // C.1
+  if (lo&0x08) REG_PIOC_SODR = 0x1 << 2;  // C.2
+  if (lo&0x04) REG_PIOC_SODR = 0x1 << 3;  // C.3
+  if (lo&0x02) REG_PIOC_SODR = 0x1 << 4;  // C.4
+  if (lo&0x01) REG_PIOC_SODR = 0x1 << 5;  // C.5
 
 }
 
@@ -2414,33 +2405,30 @@ void TFT_HX8357_Due::lo_byte(uint16_t lo)
 
 void TFT_HX8357_Due::fgColor(uint16_t c)
 {
-  fgA = 0; fgC = 0; fgD = 0;
+  fgA = 0; fgB = 0; fgC = 0; fgD = 0;
   pixelfg = c;
 
-  fgA = ((c & 0x0400)<< 5) | ((c & 0x0200) << 5) | ((c&0x0040) << 1);
-  (c & 0x0100) ? fgB = 0x4000000 : fgB = 0x0000000;
-  fgC = ((c&0x0010) >> 3) | ((c&0x0008) >> 1) | ((c&0x0004) << 1) | ((c&0x0002) << 3) | ((c&0x0001) << 5);
-  fgD = ((c&0x8000) >> 9) | ((c&0x7800) >> 11) | ((c&0x0080) << 2) | ((c&0x0020) <<5); // Set them
-
+  // The compiler efficiently codes this
+  // so it is quite quick.
   // High byte                   Port.bit
-  //if(c&0x8000) fgD |= 0x1 << 6;  // D.6
-  //if(c&0x4000) fgD |= 0x1 << 3;  // D.3
-  //if(c&0x2000) fgD |= 0x1 << 2;  // D.2
-  //if(c&0x1000) fgD |= 0x1 << 1;  // D.1
-  //if(c&0x0800) fgD |= 0x1 << 0;  // D.0
-  //if(c&0x0400) fgA |= 0x1 << 15; // A.15
-  //if(c&0x0200) fgA |= 0x1 << 14; // A.14
-  //if(c&0x0100) fgB |= 0x1 << 26; // B.26
+  if(c&0x8000) fgD |= 0x1 << 6;  // D.6
+  if(c&0x4000) fgD |= 0x1 << 3;  // D.3
+  if(c&0x2000) fgD |= 0x1 << 2;  // D.2
+  if(c&0x1000) fgD |= 0x1 << 1;  // D.1
+  if(c&0x0800) fgD |= 0x1 << 0;  // D.0
+  if(c&0x0400) fgA |= 0x1 << 15; // A.15
+  if(c&0x0200) fgA |= 0x1 << 14; // A.14
+  if(c&0x0100) fgB |= 0x1 << 26; // B.26
 
   // Low byte                   Port.bit
-  //if(c&0x0080) fgD |= 0x1 << 9;  // D.9
-  //if(c&0x0040) fgA |= 0x1 << 7;  // A.7
-  //if(c&0x0020) fgD |= 0x1 << 10; // D.10
-  //if(c&0x0010) fgC |= 0x1 << 1;  // C.1
-  //if(c&0x0008) fgC |= 0x1 << 2;  // C.2
-  //if(c&0x0004) fgC |= 0x1 << 3;  // C.3
-  //if(c&0x0002) fgC |= 0x1 << 4;  // C.4
-  //if(c&0x0001) fgC |= 0x1 << 5;  // C.5
+  if(c&0x0080) fgD |= 0x1 << 9;  // D.9
+  if(c&0x0040) fgA |= 0x1 << 7;  // A.7
+  if(c&0x0020) fgD |= 0x1 << 10; // D.10
+  if(c&0x0010) fgC |= 0x1 << 1;  // C.1
+  if(c&0x0008) fgC |= 0x1 << 2;  // C.2
+  if(c&0x0004) fgC |= 0x1 << 3;  // C.3
+  if(c&0x0002) fgC |= 0x1 << 4;  // C.4
+  if(c&0x0001) fgC |= 0x1 << 5;  // C.5
 
 }
 
@@ -2451,53 +2439,55 @@ void TFT_HX8357_Due::fgColor(uint16_t c)
 
 void TFT_HX8357_Due::bgColor(uint16_t c)
 {
-  bgA = 0; bgC = 0; bgD = 0;
+  bgA = 0; bgB = 0; bgC = 0; bgD = 0;
   pixelbg = c;
 
-  bgA = ((c & 0x0400)<< 5) | ((c & 0x0200) << 5) | ((c&0x0040) << 1);
-  (c & 0x0100) ? bgB = 0x4000000 : bgB = 0x0000000;
-  bgC = ((c&0x0010) >> 3) | ((c&0x0008) >> 1) | ((c&0x0004) << 1) | ((c&0x0002) << 3) | ((c&0x0001) << 5);
-  bgD = ((c&0x8000) >> 9) | ((c&0x7800) >> 11) | ((c&0x0080) << 2) | ((c&0x0020) <<5); // Set them
-
-  //  |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
-  //0b00000000000000000000000000000000
+  // The compiler efficiently codes this
+  // so it is quite quick.
   // High byte                   Port.bit
-  //if(c&0x8000) bgD |= 0x1 << 6;  // D.6
-  //if(c&0x4000) bgD |= 0x1 << 3;  // D.3
-  //if(c&0x2000) bgD |= 0x1 << 2;  // D.2
-  //if(c&0x1000) bgD |= 0x1 << 1;  // D.1
-  //if(c&0x0800) bgD |= 0x1 << 0;  // D.0
-  //if(c&0x0400) bgA |= 0x1 << 15; // A.15
-  //if(c&0x0200) bgA |= 0x1 << 14; // A.14
-  //if(c&0x0100) bgB |= 0x1 << 26; // B.26
+  if(c&0x8000) bgD |= 0x1 << 6;  // D.6
+  if(c&0x4000) bgD |= 0x1 << 3;  // D.3
+  if(c&0x2000) bgD |= 0x1 << 2;  // D.2
+  if(c&0x1000) bgD |= 0x1 << 1;  // D.1
+  if(c&0x0800) bgD |= 0x1 << 0;  // D.0
+  if(c&0x0400) bgA |= 0x1 << 15; // A.15
+  if(c&0x0200) bgA |= 0x1 << 14; // A.14
+  if(c&0x0100) bgB |= 0x1 << 26; // B.26
 
   // Low byte                    Port.bit
-  //if(c&0x0080) bgD |= 0x1 << 9;  // D.9
-  //if(c&0x0040) bgA |= 0x1 << 7;  // A.7
-  //if(c&0x0020) bgD |= 0x1 << 10; // D.10
-  //if(c&0x0010) bgC |= 0x1 << 1;  // C.1
-  //if(c&0x0008) bgC |= 0x1 << 2;  // C.2
-  //if(c&0x0004) bgC |= 0x1 << 3;  // C.3
-  //if(c&0x0002) bgC |= 0x1 << 4;  // C.4
-  //if(c&0x0001) bgC |= 0x1 << 5;  // C.5
+  if(c&0x0080) bgD |= 0x1 << 9;  // D.9
+  if(c&0x0040) bgA |= 0x1 << 7;  // A.7
+  if(c&0x0020) bgD |= 0x1 << 10; // D.10
+  if(c&0x0010) bgC |= 0x1 << 1;  // C.1
+  if(c&0x0008) bgC |= 0x1 << 2;  // C.2
+  if(c&0x0004) bgC |= 0x1 << 3;  // C.3
+  if(c&0x0002) bgC |= 0x1 << 4;  // C.4
+  if(c&0x0001) bgC |= 0x1 << 5;  // C.5
 
 }
 
 /***************************************************************************************
 ** Function name:           Write the common control words CASET, PASET and RAMWR
-** Descriptions:            Used to improve performance
+** Descriptions:            Used to improve performance, also sets RS and WR low
 ***************************************************************************************/
 
 void TFT_HX8357_Due::addrCmd(uint8_t cmd)
 {
   //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
-  REG_PIOA_CODR = 0b00000000000000000000000010000000; // Clear bits
-  REG_PIOD_CODR = 0b00000000000000000000011000000000;
-  REG_PIOD_SODR = 0b00000000000000000000010000000000;
-  REG_PIOC_CODR = 0b00000000000000000000000000111110;
-  if (cmd==HX8357_CASET) REG_PIOC_SODR = 0b00000000000000000000000000010100; // Now write the CASET bits
-  if (cmd==HX8357_PASET) REG_PIOC_SODR = 0b00000000000000000000000000110100; // Now write the PASET bits
-  if (cmd==HX8357_RAMWR) REG_PIOC_SODR = 0b00000000000000000000000000001100; // Now write the RAMWR bits
+  REG_PIOA_CODR = 0b00000000000000000000000010000000; // Clear bits in A
+  REG_PIOD_CODR = 0b00000000000000000000011000000000; // Clear bits in D
+  REG_PIOD_SODR = 0b00000000000000000000010000000000; // Set common bits in D
+  //                                        WR        // Set WR and RS low
+  REG_PIOC_CODR = 0b00000000000000000000000011111110; // Clear RS and bits in C
+
+  if (cmd==HX8357_CASET)
+  REG_PIOC_SODR = 0b00000000000000000000000000010100; // Write the CASET specific bits
+  if (cmd==HX8357_PASET)
+  REG_PIOC_SODR = 0b00000000000000000000000000110100; // Write the PASET specific bits
+  if (cmd==HX8357_RAMWR)
+  REG_PIOC_SODR = 0b00000000000000000000000000001100; // Write the RAMWR specific bits
+  WR_H;
+  RS_H;
 }
 
 /***************************************************************************************
@@ -2516,8 +2506,8 @@ void TFT_HX8357_Due::fgWrite(void)
   REG_PIOB_CODR = 0b00000100000000000000000000000000; // Clear bits
   REG_PIOB_SODR = fgB;                                // Now write the bits
 
-  //                                          vvvvv   Marker for register bits used
-  REG_PIOC_CODR = 0b00000000000000000000000000111110; // Clear bits
+  //                                        W vvvvv   Marker for register bits used
+  REG_PIOC_CODR = 0b00000000000000000000000010111110; // Clear bits and WR low
   REG_PIOC_SODR = fgC;                                // Now write the bits
 
   //                                     vv  v  vvvv  Marker for register bits used
@@ -2540,8 +2530,8 @@ void TFT_HX8357_Due::bgWrite(void)
   REG_PIOB_CODR = 0b00000100000000000000000000000000; // Clear bits
   REG_PIOB_SODR = bgB;                                // Now write the bits
 
-  //                                          vvvvv   Marker for register bits used
-  REG_PIOC_CODR = 0b00000000000000000000000000111110; // Clear bits
+  //                                        W vvvvv   Marker for register bits used
+  REG_PIOC_CODR = 0b00000000000000000000000010111110; // Clear bits and WR low
   REG_PIOC_SODR = bgC;                                // Now write the bits
 
   //                                     vv  v  vvvv  Marker for register bits used
