@@ -205,7 +205,7 @@ void TFT_HX8357_Due::init(void)
 {
   // toggle RST low to reset
     digitalWrite(_rst, HIGH);
-    delay(10);
+    delay(50);
     digitalWrite(_rst, LOW);
     delay(10);
     digitalWrite(_rst, HIGH);
