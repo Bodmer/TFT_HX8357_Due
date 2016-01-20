@@ -85,24 +85,40 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 
 //These define the ports and port bits used for the write, chip select (CS) and data/command (RS) lines
 
+
+
+#ifndef ILI9481
+
 // Set WR low
-#define WR_L REG_PIOC_CODR = 0x1 << 7
+  #define WR_L REG_PIOC_CODR = 0x1 << 7
 
 // Set WR high
-#define WR_H REG_PIOC_SODR = 0x1 << 7
+  #define WR_H REG_PIOC_SODR = 0x1 << 7
 
 // Long write strobe, hold low for two periods then high
 // Use in tight loops to avoid too narrow low pulses
-#ifndef ILI9481
   #define WR_STB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
-#else
-  // The ILI9481 is slower and needs a longer write strobe to avoid spurious pixels
-  #define WR_STB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
-#endif
 
 // Short write strobe, hold low for one period then high
 // Use where write is already set low during data setup
 #define WR_SB   REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
+
+#else
+
+// Set WR low
+  #define WR_L REG_PIOC_CODR = 0x1 << 7
+
+// Set WR high
+  #define WR_H WR_STB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7
+
+// The ILI9481 is slower and needs a longer write strobe to avoid spurious pixels
+  #define WR_STB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
+
+// Short write strobe, hold low for one period then high
+// Use where write is already set low during data setup
+#define WR_SB   REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
+
+#endif
 
 // Chip select must be toggled during setup so these are a special case
 #define SETUP_CS_H REG_PIOC_SODR = 0x1 << 8
