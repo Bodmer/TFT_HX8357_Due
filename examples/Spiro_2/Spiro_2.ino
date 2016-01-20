@@ -1,6 +1,8 @@
 // Spiro
 // Rainbow patern generator
 
+// Writen for a 320 x 240 screen hence does not fill screen
+
 // Updated by Bodmer
 
 #include <TFT_HX8357_Due.h> // Hardware-specific library

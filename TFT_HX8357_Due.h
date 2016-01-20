@@ -7,7 +7,7 @@
   at the end of this file.
 
   This is a standalone library that contains the
-  hardware driver, the graphics funtions and the
+  hardware driver, the graphics functions and the
   proportional fonts.
 
   The larger fonts are Run Length Encoded to reduce
@@ -91,8 +91,18 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 // Set WR high
 #define WR_H REG_PIOC_SODR = 0x1 << 7
 
-// Hold low for two periods then high
-#define WR_STB REG_PIOC_CODR = 0x1 << 7; REG_PIOC_CODR = 0x1 << 7;   REG_PIOC_SODR = 0x1 << 7
+// Long write strobe, hold low for two periods then high
+// Use in tight loops to avoid too narrow low pulses
+#ifndef ILI9481
+  #define WR_STB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
+#else
+  // The ILI9481 is slower and needs a longer write strobe to avoid spurious pixels
+  #define WR_STB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
+#endif
+
+// Short write strobe, hold low for one period then high
+// Use where write is already set low during data setup
+#define WR_SB   REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
 
 // Chip select must be toggled during setup so these are a special case
 #define SETUP_CS_H REG_PIOC_SODR = 0x1 << 8
@@ -104,7 +114,7 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
   #define CS_L REG_PIOC_CODR = 0x1 << 8
 #else
   #define CS_H // We do not define this so CS will not be set high
-  #define CS_L REG_PIOC_CODR = 0x1 << 8
+  #define CS_L REG_PIOC_CODR = 0x1 << 8 // Play safe here
 #endif
 
 // Change RS line state
@@ -312,6 +322,9 @@ class TFT_HX8357_Due
            fgWrite(void),
            bgWrite(void),
            addrCmd(uint8_t cmd),
+           caset(void),
+           paset(void),
+           ramwr(void),
            commandList(const uint8_t *addr);
 
   uint8_t  getRotation(void);
@@ -340,7 +353,10 @@ class TFT_HX8357_Due
 
     void  hi_byte(uint16_t hi);
     void  lo_byte(uint16_t lo);
-
+    void  lo_byte1(void);
+    void  lo_byte2(void);
+    void  plo_byte1(uint16_t lo);
+    void  plo_byte2(uint16_t lo);
   uint8_t  tabcolor;
 
  protected:
@@ -353,7 +369,7 @@ class TFT_HX8357_Due
            fontsloaded;
 
   uint32_t fgA, fgB, fgC, fgD, bgA, bgB, bgC, bgD; // Pre-computed colour bit patterns
-
+  uint32_t lo1A, lo1C, lo1D, lo2A, lo2C, lo2D; // Pre-computed byte bit patterns
   uint8_t  glyph_ab,  // glyph height above baseline
            glyph_bb,  // glyph height below baseline
            textfont,  // Current selected font
@@ -390,6 +406,4 @@ class TFT_HX8357_Due
 
   Written by Limor Fried/Ladyada for Adafruit Industries.
   MIT license, all text above must be included in any redistribution
-
-  Updated with new functions by Bodmer 14/4/15
  ****************************************************/

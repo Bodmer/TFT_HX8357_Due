@@ -1,6 +1,6 @@
 /*
 
- Example sketch for TFT_HX9357 library.
+ Example sketch for TFT_HX9357_Due library.
 
  No fonts are needed.
  

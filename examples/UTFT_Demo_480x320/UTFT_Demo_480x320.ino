@@ -3,9 +3,6 @@
 // web: http://www.henningkarlsen.com/electronics
 /*
 
- Note: This test deliberately only occupies half the screen (320 x 240 pixel area)
- so performance can be compared with my other 320 x 240 TFT displays and drivers.
-
  The delay between tests is set to 0. The tests run so fast you will need to
  change the WAIT value below to see what is being plotted!
  

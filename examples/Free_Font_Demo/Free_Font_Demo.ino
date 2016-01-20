@@ -6,10 +6,10 @@
   "fontconvert" folder inside the library. This converted has also been
   copied from the Adafruit_GFX library.
 
-  Since these fonts are a recent edition Adafruit do not have a tutorial
+  Since these fonts are a recent addition Adafruit do not have a tutorial
   available yet on how to use the utility.   Linux users will no doubt
   figure it out!  In the meantime there are 48 font files to use in sizes
-  from 9 point to 24 point, and n normal, bold, and italic or oblique
+  from 9 point to 24 point, and in normal, bold, and italic or oblique
   styles.
 
   This example sketch uses both the print class and drawString() functions
@@ -21,7 +21,7 @@
   --------------------------- NOTE ----------------------------------------
   The free font encoding format does not lend itself easily to plotting
   the background without flicker. For values that changes on screen it is
-  ibetter to use Fonts 1- 8 which are encoded specifically for rapid
+  better to use Fonts 1- 8 which are encoded specifically for rapid
   drawing with background.
   -------------------------------------------------------------------------
   
@@ -31,7 +31,7 @@
   loaded in the Due's memory.
 
   As supplied with the default settings the sketch has 11 fonts loaded,
-  i.e. GLCD, Font 2, Font 4, Font 6, Font 7, Font 8 and five Free Fonts,
+  i.e. GLCD (Font 1), Font 2, Font 4, Font 6, Font 7, Font 8 and five Free Fonts,
   even though they are not all used in the sketch.
   
   Disable fonts you do not need in User_Setup.h in the library folder.

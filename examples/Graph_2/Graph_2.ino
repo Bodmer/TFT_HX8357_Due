@@ -6,7 +6,7 @@
   rev     date        author      description
   1       12-24-2015  kasprzak    initial creation
 
-  Updated by Bodmer 29/12/15 to be an example for the TFT_HX8357_Due library here:
+  Updated by Bodmer to be an example for the library here:
   https://github.com/Bodmer/TFT_HX8357_Due
   
 */

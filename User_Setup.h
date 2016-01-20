@@ -6,12 +6,13 @@
 
 // ##################################################################################
 //
-// Define the driver as HX8357B or HX8357C
+// Define ONE driver, either HX8357B, HX8357C or ILI9481
 //
 // ##################################################################################
 
 #define HX8357B
 //#define HX8357C
+//#define ILI9481
 
 // ##################################################################################
 //
@@ -21,14 +22,6 @@
 
 #define HX8357_TFTWIDTH  320
 #define HX8357_TFTHEIGHT 480
-
-// ##################################################################################
-//
-// If rotations show mirrored text then enable this #define
-//
-// ##################################################################################
-
-//#define MIRROR
 
 // ##################################################################################
 //
@@ -98,7 +91,7 @@
 //
 // ##################################################################################
 
-//These enumerate the text plotting alignment (reference datum point)
+// These enumerate the text plotting alignment (reference datum point)
 // use in the setTextDatum() function
 
 #define TL_DATUM 0 // Top left (default)
