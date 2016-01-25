@@ -2374,23 +2374,23 @@ void TFT_HX8357_Due::hi_byte(uint16_t hi)
 {
   
   //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
-  //                     B          AA      AD  DDDD  Marker for register bits used
-  REG_PIOA_CODR = 0b00000000000000001100000010000000; // Clear bits
+  //                     B          AA       D  DDDD  Marker for register bits used
+  REG_PIOA_CODR = 0b00000000000000001100000000000000; // Clear bits
   REG_PIOB_CODR = 0b00000100000000000000000000000000; // Clear bits
   //                                        W         // WR bit
-  REG_PIOC_CODR = 0b00000000000000000000000010111110; // Clear WR bit
-  REG_PIOD_CODR = 0b00000000000000000000011001001111; // Clear bits
+  REG_PIOC_CODR = 0b00000000000000000000000010000000; // Clear WR bit
+  REG_PIOD_CODR = 0b00000000000000000000000001001111; // Clear bits
 
   // The compiler efficiently codes this
   // so it is quite quick.               Port.bit
-  if (hi&0x8000) REG_PIOD_SODR = 0x1 << 6;  // D.6
-  if (hi&0x4000) REG_PIOD_SODR = 0x1 << 3;  // D.3
-  if (hi&0x2000) REG_PIOD_SODR = 0x1 << 2;  // D.2
-  if (hi&0x1000) REG_PIOD_SODR = 0x1 << 1;  // D.1
-  if (hi&0x0800) REG_PIOD_SODR = 0x1 << 0;  // D.0
-  if (hi&0x0400) REG_PIOD_SODR = 0x1 << 15; // A.15
-  if (hi&0x0200) REG_PIOA_SODR = 0x1 << 14; // A.14
-  if (hi&0x0100) REG_PIOB_SODR = 0x1 << 26; // B.26
+  if (hi&0x80) REG_PIOD_SODR = 0x1 << 6;  // D.6
+  if (hi&0x40) REG_PIOD_SODR = 0x1 << 3;  // D.3
+  if (hi&0x20) REG_PIOD_SODR = 0x1 << 2;  // D.2
+  if (hi&0x10) REG_PIOD_SODR = 0x1 << 1;  // D.1
+  if (hi&0x08) REG_PIOD_SODR = 0x1 << 0;  // D.0
+  if (hi&0x04) REG_PIOA_SODR = 0x1 << 15; // A.15
+  if (hi&0x02) REG_PIOA_SODR = 0x1 << 14; // A.14
+  if (hi&0x01) REG_PIOB_SODR = 0x1 << 26; // B.26
 }
 
 /***************************************************************************************
@@ -2403,7 +2403,7 @@ void TFT_HX8357_Due::lo_byte(uint16_t lo)
   //                                     DD A CCCCC   Marker for register bits used
   REG_PIOA_CODR = 0b00000000000000000000000010000000; // Clear bits
   //                                        W         // WR bit
-  REG_PIOC_CODR = 0b00000000000000000000000000111110; // Clear WR bit as well
+  REG_PIOC_CODR = 0b00000000000000000000000010111110; // Clear WR bit as well
   REG_PIOD_CODR = 0b00000000000000000000011000000000; // Clear bits
 
   // The compiler efficiently codes this
