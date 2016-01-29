@@ -367,7 +367,7 @@ class TFT_HX8357_Due
     // Sketches should use setWindow(...) instead of this one
     void  setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 
-    void  hi_byte(uint16_t hi);
+    void  write16(uint16_t word);
     void  lo_byte(uint16_t lo);
     void  lo_byte1(void);
     void  lo_byte2(void);
