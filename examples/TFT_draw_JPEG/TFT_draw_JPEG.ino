@@ -17,13 +17,18 @@
 // JPEG compression works best on images with smooth variations of tone and color.
 // Very high compression ratio will create increasingly apparent image artifacts.
 
+// As well as the HX8357_Due TFT library yo will need the JPEG Decoder library.
+// A copy can be downloaded here:
+// https://github.com/Bodmer/JPEGDecoder
+
+// A preconfigured copy of the SdFat library to work with the Due is availble here:
+// https://github.com/Bodmer/SdFat
+
 #include <SPI.h>
 #include <arduino.h>
 
-// To use SdFat with the Mega or Due see instructions at the end of this sketch!
-
-// Comment out next #define to use the SD library (works with Mega only).
-// If the #define is not commented out the SdFat library will be used (works with Mega or Due)
+// Comment out next #define to use the SD library (note: works with Mega only).
+// Otherwise the SdFat library will be used (works with Mega or Due)
 #define USE_SDFAT
 
 #ifdef USE_SDFAT
@@ -156,7 +161,7 @@ void showTime(uint32_t msTime) {
 // that the Software (bit bashed) SPI signal driving will be employed.
 //
 // You can get a copy of the SdFat library that has already been modified here:
-// 
+// https://github.com/Bodmer/SdFat
 
 //  The changes to be made to the SdFatConfig.h file are indicated by =>> below:
 
