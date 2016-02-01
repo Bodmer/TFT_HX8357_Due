@@ -869,7 +869,39 @@ int16_t TFT_HX8357_Due::textWidth(char *string, int16_t font)
 
   if (font>1 && font<9)
   {
-  widthtable = (const uint8_t *)pgm_read_word( &(fontdata[font].widthtbl ) ) - 32; //subtract the 32 outside the loop
+
+  switch (font) {
+#ifdef LOAD_FONT2
+    case 2:
+      widthtable = widtbl_f16 - 32; //subtract the 32 outside the loop
+      break;
+#endif
+
+#ifdef LOAD_FONT4
+    case 4:
+      widthtable = widtbl_f32 - 32; //subtract the 32 outside the loop
+      break;
+#endif
+
+#ifdef LOAD_FONT6
+    case 6:
+      widthtable = widtbl_f64 - 32; //subtract the 32 outside the loop
+      break;
+#endif
+
+#ifdef LOAD_FONT7
+    case 7:
+      widthtable = widtbl_f7s - 32; //subtract the 32 outside the loop
+      break;
+#endif
+
+#ifdef LOAD_FONT8
+    case 8:
+      widthtable = widtbl_f72 - 32; //subtract the 32 outside the loop
+      break;
+#endif
+  } // End switch (font)
+
 
     while (*string)
     {
@@ -924,16 +956,48 @@ uint16_t TFT_HX8357_Due::fontsLoaded(void)
 ***************************************************************************************/
 int16_t TFT_HX8357_Due::fontHeight(int16_t font)
 {
+  int height = 8; // Default for GLCD font
+
+  switch (font) {
+
 #ifdef LOAD_GFXFF
-  if (font==1)
-  {
-    if(gfxFont) // New font
-    {
-      return pgm_read_byte(&gfxFont->yAdvance) * textsize;
-    }
-  }
+    case 1:
+      if(gfxFont) height = pgm_read_byte(&gfxFont->yAdvance);
+      break;
 #endif
-  return pgm_read_byte( &fontdata[font].height ) * textsize;
+
+#ifdef LOAD_FONT2
+    case 2:
+      height = chr_hgt_f16;
+      break;
+#endif
+
+#ifdef LOAD_FONT4
+    case 4:
+      height= chr_hgt_f32;
+      break;
+#endif
+
+#ifdef LOAD_FONT6
+    case 6:
+      height= chr_hgt_f64;
+      break;
+#endif
+
+#ifdef LOAD_FONT7
+    case 7:
+      height= chr_hgt_f7s;
+      break;
+#endif
+
+#ifdef LOAD_FONT8
+    case 8:
+      height= chr_hgt_f72;
+      break;
+#endif
+  } // End switch (font)
+  
+  return height * textsize;
 }
 
 /***************************************************************************************
@@ -965,6 +1029,7 @@ void TFT_HX8357_Due::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t co
 
     byte column[5];
     const uint8_t *flash_address = (const uint8_t *)font + c * 5;
+//Serial.print("fa=");Serial.println((uint32_t)flash_address,HEX);
     column[0] = pgm_read_byte(flash_address++);
     column[1] = pgm_read_byte(flash_address++);
     column[2] = pgm_read_byte(flash_address++);
@@ -992,7 +1057,7 @@ void TFT_HX8357_Due::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t co
   else
   {
     const uint8_t *flash_address = (const uint8_t *)font + c * 5;
-
+//Serial.print("fa=");Serial.println((uint32_t)flash_address,HEX);
     if (color!=pixelfg) fgColor(color);
 
     for (int8_t i = 0; i < 6; i++ ) {
@@ -1681,41 +1746,56 @@ size_t TFT_HX8357_Due::write(uint8_t utf8)
 #endif
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+  switch (textfont) {
+    case 1:
+#ifdef LOAD_GLCD
+      width =  6;
+      height = 8;
+      break;
+#else
+      return 0;
+      break;
+#endif
+
 #ifdef LOAD_FONT2
-  if (textfont == 2)
-  {
-      width = pgm_read_byte(widtbl_f16 + uniCode-32);
+    case 2:
+      width = pgm_read_byte(widtbl_f16 + uniCode - 32);
       height = chr_hgt_f16;
-      // Font 2 is rendered in whole byte widths so we must allow for this
       width = (width + 6) / 8;  // Width in whole bytes for font 2
                                 // Should be + 7 but must allow for font width change
       width = width * 8;        // Width converted back to pixels
-  }
-  #ifdef LOAD_RLE
-  else
-  #endif
+      break;
 #endif
 
-
-#ifdef LOAD_RLE
-  {
-      // Uses the fontinfo struct array to avoid lots of 'if' or 'switch' statements
-      // This is more convenient for the RLE fonts
-      // Yes, these lines are needlessly executed when textfont = 1
-      width = pgm_read_byte( pgm_read_word( &(fontdata[textfont].widthtbl ) ) + uniCode-32 );
-      height= pgm_read_byte( &fontdata[textfont].height );
-  }
+#ifdef LOAD_FONT4
+    case 4:
+      width = pgm_read_byte( widtbl_f32 + uniCode - 32 );
+      height= chr_hgt_f32;
+      break;
 #endif
 
-#ifdef LOAD_GLCD
-  if (textfont==1)
-  {
-      width =  6;
-      height = 8;
-  }
-#else
-  if (textfont==1) return 0;
+#ifdef LOAD_FONT6
+    case 6:
+      width = pgm_read_byte( widtbl_f64 + uniCode - 32 );
+      height= chr_hgt_f64;
+      break;
 #endif
+
+#ifdef LOAD_FONT7
+    case 7:
+      width = pgm_read_byte( widtbl_f7s + uniCode - 32 );
+      height= chr_hgt_f7s;
+      break;
+#endif
+
+#ifdef LOAD_FONT8
+    case 8:
+      width = pgm_read_byte( widtbl_f72 + uniCode - 32 );
+      height= chr_hgt_f72;
+      break;
+#endif
+  } // End switch (font)
+
 
   height = height * textsize;
 
@@ -1793,30 +1873,30 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
 #endif
 
 #ifdef LOAD_GFXFF
-      drawChar(x, y, uniCode, textcolor, textbgcolor, textsize);
-      if(!gfxFont) { // 'Classic' built-in font
+    drawChar(x, y, uniCode, textcolor, textbgcolor, textsize);
+    if(!gfxFont) { // 'Classic' built-in font
   #ifdef LOAD_GLCD
-        return 6 * textsize;
+      return 6 * textsize;
   #else
-        return 0;
+      return 0;
   #endif
+    }
+    else
+    {
+      uint8_t first = pgm_read_byte(&gfxFont->first);
+      if((uniCode >= first) && (uniCode <= (uint8_t)pgm_read_byte(&gfxFont->last)))
+      {
+        uint8_t   c2    = uniCode - pgm_read_byte(&gfxFont->first);
+        GFXglyph *glyph = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c2]);
+        return pgm_read_byte(&glyph->xAdvance) * textsize;
       }
       else
       {
-        uint8_t first = pgm_read_byte(&gfxFont->first);
-        if((uniCode >= first) && (uniCode <= (uint8_t)pgm_read_byte(&gfxFont->last)))
-        {
-          uint8_t   c2    = uniCode - pgm_read_byte(&gfxFont->first);
-          GFXglyph *glyph = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c2]);
-          return pgm_read_byte(&glyph->xAdvance) * textsize;
-        }
-        else
-        {
-          return 0;
-        }
+        return 0;
       }
-#endif
-  }
+    }
+#endif // LOAD_GFXFF
+  }    // if (font==1)
 
   uint16_t width  = 0;
   uint16_t height = 0;
@@ -1826,27 +1906,49 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
 
   if(textcolor != pixelfg) fgColor(textcolor);
 
+  switch (font) {
 #ifdef LOAD_FONT2
-  if (font == 2)
-  {
-      // This is 20us faster than using the fontdata structure
-      flash_address = (const uint8_t *)pgm_read_word(&chrtbl_f16[uniCode]);
+    case 2:
+      flash_address = chrtbl_f16[uniCode];
+      //Serial.print("fa=");  Serial.print  ((uint32_t)flash_address,HEX);
+      //Serial.print(", ct=");Serial.println((uint32_t)chrtbl_f16,HEX);
       width = pgm_read_byte(widtbl_f16 + uniCode);
       height = chr_hgt_f16;
-  }
-  #ifdef LOAD_RLE
-  else
-  #endif
+      break;
 #endif
 
-#ifdef LOAD_RLE
-  {
-      // This is slower than above but is more convenient for the RLE fonts
-      flash_address = (const uint8_t *)pgm_read_word( pgm_read_word( &(fontdata[font].chartbl ) ) + uniCode*sizeof(void *) );
-      width = pgm_read_byte( pgm_read_word( &(fontdata[font].widthtbl ) ) + uniCode );
-      height= pgm_read_byte( &fontdata[font].height );
-  }
+#ifdef LOAD_FONT4
+    case 4:
+      flash_address = chrtbl_f32[uniCode];
+      width = pgm_read_byte( widtbl_f32 + uniCode );
+      height= chr_hgt_f32;
+      break;
 #endif
+
+#ifdef LOAD_FONT6
+    case 6:
+      flash_address = chrtbl_f64[uniCode];
+      width = pgm_read_byte( widtbl_f64 + uniCode );
+      height= chr_hgt_f64;
+      break;
+#endif
+
+#ifdef LOAD_FONT7
+    case 7:
+      flash_address = chrtbl_f7s[uniCode];
+      width = pgm_read_byte( widtbl_f7s + uniCode );
+      height= chr_hgt_f7s;
+      break;
+#endif
+
+#ifdef LOAD_FONT8
+    case 8:
+      flash_address = chrtbl_f72[uniCode];
+      width = pgm_read_byte( widtbl_f72 + uniCode );
+      height= chr_hgt_f72;
+      break;
+#endif
+  } // End switch (font)
 
   int16_t w = width;
   byte line = 0;
@@ -2069,8 +2171,41 @@ int16_t TFT_HX8357_Due::drawString(char *string, int16_t poX, int16_t poY, int16
 
     // If it is not font 1 (GLCD or free font) get the basline and pixel height of the font
     if (font!=1) {
-      baseline = pgm_read_byte( &fontdata[font].baseline ) * textsize;
       cheight = fontHeight(font);
+
+      switch (font) {
+
+#ifdef LOAD_FONT2
+        case 2:
+          baseline = baseline_f16;
+          break;
+#endif
+
+#ifdef LOAD_FONT4
+        case 4:
+          baseline = baseline_f32;
+          break;
+#endif
+
+#ifdef LOAD_FONT6
+        case 6:
+          baseline = baseline_f64;
+          break;
+#endif
+
+#ifdef LOAD_FONT7
+        case 7:
+          baseline = baseline_f7s;
+          break;
+#endif
+
+#ifdef LOAD_FONT8
+        case 8:
+          baseline = baseline_f72;
+          break;
+#endif
+      } // End switch (font)
+
     }
 
     switch(textdatum) {
@@ -2375,7 +2510,7 @@ inline void TFT_HX8357_Due::write16(uint16_t word)
   REG_PIOD_CODR = 0b00000000000000000000011001001111; // Clear bits
 
   // The compiler efficiently codes this
-  // so it is quite quick.               Port.bit
+  // so it is quite quick.                    Port.bit
   if (word&0x8000) REG_PIOD_SODR = 0x1 << 6;  // D.6
   if (word&0x4000) REG_PIOD_SODR = 0x1 << 3;  // D.3
   if (word&0x2000) REG_PIOD_SODR = 0x1 << 2;  // D.2
@@ -2385,7 +2520,7 @@ inline void TFT_HX8357_Due::write16(uint16_t word)
   if (word&0x0200) REG_PIOA_SODR = 0x1 << 14; // A.14
   if (word&0x0100) REG_PIOB_SODR = 0x1 << 26; // B.26
 
-  // so it is quite quick.              Port.bit
+  // so it is quite quick.                    Port.bit
   if (word&0x0080) REG_PIOD_SODR = 0x1 << 9;  // D.9
   if (word&0x0040) REG_PIOA_SODR = 0x1 << 7;  // A.7
   if (word&0x0020) REG_PIOD_SODR = 0x1 << 10; // D.10
@@ -2410,7 +2545,7 @@ void TFT_HX8357_Due::lo_byte(uint16_t lo)
   REG_PIOD_CODR = 0b00000000000000000000011000000000; // Clear bits
 
   // The compiler efficiently codes this
-  // so it is quite quick.              Port.bit
+  // so it is quite quick.                Port.bit
   if (lo&0x80) REG_PIOD_SODR = 0x1 << 9;  // D.9
   if (lo&0x40) REG_PIOA_SODR = 0x1 << 7;  // A.7
   if (lo&0x20) REG_PIOD_SODR = 0x1 << 10; // D.10
@@ -2424,7 +2559,7 @@ void TFT_HX8357_Due::plo_byte1(uint16_t lo)
 {
   lo1A = 0; lo1C=0; lo1D=0;
   // The compiler efficiently codes this
-  // so it is quite quick.              Port.bit
+  // so it is quite quick.          Port.bit
   if (lo&0x0080) lo1D |= 0x1 << 9;  // D.9
   if (lo&0x0040) lo1A |= 0x1 << 7;  // A.7
   if (lo&0x0020) lo1D |= 0x1 << 10; // D.10
@@ -2438,7 +2573,7 @@ void TFT_HX8357_Due::plo_byte2(uint16_t lo)
 {
   lo2A = 0; lo2C=0; lo2D=0;
   // The compiler efficiently codes this
-  // so it is quite quick.              Port.bit
+  // so it is quite quick.          Port.bit
   if (lo&0x0080) lo2D |= 0x1 << 9;  // D.9
   if (lo&0x0040) lo2A |= 0x1 << 7;  // A.7
   if (lo&0x0020) lo2D |= 0x1 << 10; // D.10
@@ -2496,7 +2631,7 @@ void TFT_HX8357_Due::fgColor(uint16_t c)
   if(c&0x0200) fgA |= 0x1 << 14; // A.14
   if(c&0x0100) fgB |= 0x1 << 26; // B.26
 
-  // Low byte                   Port.bit
+  // Low byte                    Port.bit
   if(c&0x0080) fgD |= 0x1 << 9;  // D.9
   if(c&0x0040) fgA |= 0x1 << 7;  // A.7
   if(c&0x0020) fgD |= 0x1 << 10; // D.10

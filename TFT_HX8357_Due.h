@@ -210,62 +210,6 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 #define HX8357B_SETGAMMA 0xC8
 #define HX8357B_SETPANELRELATED  0xE9
 
-
-// This is a structure to conveniently hold infomation on the default fonts
-// Stores pointer to font character image address table, width table and height
-
-typedef struct {
-	const unsigned char *chartbl;
-	const unsigned char *widthtbl;
-	unsigned       char height;
-	unsigned       char baseline;
-	} fontinfo;
-
-// Now fill the structure
-const PROGMEM fontinfo fontdata [] = {
-   { 0, 0, 0, 0 },
-
-   // GLCD font (Font 1) does not have all parameters
-   { 0, 0, 8, 7 },
-
-  #ifdef LOAD_FONT2
-   { (const unsigned char *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16},
-  #else
-   { 0, 0, 0, 0 },
-  #endif
-
-   // Font 3 current unused
-   { 0, 0, 0, 0 },
-
-  #ifdef LOAD_FONT4
-   { (const unsigned char *)chrtbl_f32, widtbl_f32, chr_hgt_f32, baseline_f32},
-  #else
-   { 0, 0, 0, 0 },
-  #endif
-
-   // Font 5 current unused
-   { 0, 0, 0, 0 },
-
-  #ifdef LOAD_FONT6
-   { (const unsigned char *)chrtbl_f64, widtbl_f64, chr_hgt_f64, baseline_f64},
-  #else
-   { 0, 0, 0, 0 },
-  #endif
-
-  #ifdef LOAD_FONT7
-   { (const unsigned char *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s, baseline_f7s},
-  #else
-   { 0, 0, 0, 0 },
-  #endif
-
-  #ifdef LOAD_FONT8
-   { (const unsigned char *)chrtbl_f72, widtbl_f72, chr_hgt_f72, baseline_f72}
-  #else
-   { 0, 0, 0, 0 }
-  #endif
-};
-
-
 // Class member functions and variables
 class TFT_HX8357_Due
 
