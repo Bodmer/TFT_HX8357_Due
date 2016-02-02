@@ -25,22 +25,6 @@
   drawing with background.
   -------------------------------------------------------------------------
   
-  >>>>>>>>>>>>>>>>>>>>>>>>>>> WARNING <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-  This sketch  is at the limit of how many fonts can be
-  loaded in the Due's memory.
-
-  As supplied with the default settings the sketch has 11 fonts loaded,
-  i.e. GLCD (Font 1), Font 2, Font 4, Font 6, Font 7, Font 8 and five Free Fonts,
-  even though they are not all used in the sketch.
-  
-  Disable fonts you do not need in User_Setup.h in the library folder.
- 
-  If too many fonts are loaded they may occupy more than 64K bytes and the
-  Due will crash or corrupted characters will be drawn, even though the
-  sketch compiles and uploads correctly.
-
-  This is a limit imposed by the Arduino environment.
 
   #########################################################################
   ###### DON'T FORGET TO UPDATE THE User_Setup.h FILE IN THE LIBRARY ######
@@ -88,7 +72,6 @@ void loop() {
   tft.println();
 
   tft.setFreeFont(FSB9);   // Select Free Serif 9 point font, could use:
-  // tft.setFreeFont(&FreeSerif9pt7b);
   tft.println();          // Free fonts plot with the baseline (imaginary line the letter A would sit on)
   // as the datum, so we must move the cursor down a line from the 0,0 position
   tft.print("Serif Bold 9pt");  // Print the font name onto the TFT screen
@@ -146,7 +129,7 @@ void loop() {
     delay (200);
   }
 
-  delay(4000);
+  //delay(4000);
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Same again but with colours that show bounding boxes

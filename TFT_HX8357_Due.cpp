@@ -132,6 +132,7 @@ TFT_HX8357_Due::TFT_HX8357_Due(int16_t w, int16_t h)
   textdatum = TL_DATUM; // Top left text datum is default
   lo1A = 0; lo1C=0; lo1D=0; lo1A = 0; lo1C=0; lo1D=0;
   fontsloaded = 0;
+  glyphBitmap = 0;
 
 #ifdef LOAD_GLCD
   fontsloaded = 0x0002;  // Bit 1 set
@@ -920,11 +921,13 @@ int16_t TFT_HX8357_Due::textWidth(char *string, int16_t font)
       {
         uniCode = *(string++);
         uniCode -= pgm_read_byte(&gfxFont->first);
-        GFXglyph *glyph  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
+        //GFXglyph *glyph  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
+        uint8_t  *table  = (uint8_t *)glyphTable;
+        uint16_t to = uniCode*8;
         // If this is not the  last character then use xAdvance
-        if (*string) str_width += pgm_read_byte(&glyph->xAdvance);
+        if (*string) str_width += pgm_read_byte(&table[to+4]); //pgm_read_byte(&glyph->xAdvance);
         // Else use the offset plus width since this can be bigger than xAdvance
-        else str_width += ((int8_t)pgm_read_byte(&glyph->xOffset) + pgm_read_byte(&glyph->width));
+        else str_width += ((int8_t)pgm_read_byte(&table[to+5]) + pgm_read_byte(&table[to+2])); //pgm_read_byte(&glyph->xOffset) + pgm_read_byte(&glyph->width));
       }
     }
     else
@@ -1098,15 +1101,20 @@ void TFT_HX8357_Due::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t co
     // directly with 'bad' characters of font may cause mayhem!
 
     c -= pgm_read_byte(&gfxFont->first);
-    GFXglyph *glyph  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c]);
-    uint8_t  *bitmap = (uint8_t *)pgm_read_word(&gfxFont->bitmap);
-
-    uint16_t bo = pgm_read_word(&glyph->bitmapOffset);
-    uint8_t  w  = pgm_read_byte(&glyph->width),
-             h  = pgm_read_byte(&glyph->height),
-             xa = pgm_read_byte(&glyph->xAdvance);
-    int8_t   xo = pgm_read_byte(&glyph->xOffset),
-             yo = pgm_read_byte(&glyph->yOffset);
+    //GFXglyph *glyph  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c]);
+    //uint8_t  *bitmap = (uint8_t *)pgm_read_word(&gfxFont->bitmap);
+    uint8_t  *bitmap = (uint8_t *)glyphBitmap;
+    //Serial.print("bitmap=");Serial.println((uint32_t)bitmap,HEX);
+    //Serial.print("glyphBitmap=");Serial.println((uint32_t)glyphBitmap,HEX);
+    uint8_t  *table  = (uint8_t *)glyphTable;
+    uint16_t to = c*8;
+    uint16_t bo = pgm_read_word(&table[to]) ;//pgm_read_word(&glyph->bitmapOffset);
+             to += 2;
+    uint8_t  w  = pgm_read_byte(&table[to++]),//pgm_read_byte(&glyph->width),   //+2
+             h  = pgm_read_byte(&table[to++]),//pgm_read_byte(&glyph->height),  //+3
+             xa = pgm_read_byte(&table[to++]);//pgm_read_byte(&glyph->xAdvance);//+4
+    int8_t   xo = pgm_read_byte(&table[to++]),//pgm_read_byte(&glyph->xOffset), //+5
+             yo = pgm_read_byte(&table[to]);  //pgm_read_byte(&glyph->yOffset); //+6 
     uint8_t  xx, yy, bits, bit=0;
     int16_t  xo16, yo16;
 
@@ -1827,11 +1835,13 @@ size_t TFT_HX8357_Due::write(uint8_t utf8)
       uint8_t first = pgm_read_byte(&gfxFont->first);
       if((uniCode >= first) && (uniCode <= (uint8_t)pgm_read_byte(&gfxFont->last))) {
         uint8_t   c2    = uniCode - pgm_read_byte(&gfxFont->first);
-        GFXglyph *glyph = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c2]);
-        uint8_t   w     = pgm_read_byte(&glyph->width),
-                  h     = pgm_read_byte(&glyph->height);
+        //GFXglyph *glyph = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c2]);
+        uint8_t  *table  = (uint8_t *)glyphTable;
+        uint16_t to = c2*8;
+        uint8_t   w     = pgm_read_byte(&table[to+2]),    //pgm_read_byte(&glyph->width),
+                  h     = pgm_read_byte(&table[to+3]);    //pgm_read_byte(&glyph->height);
         if((w > 0) && (h > 0)) { // Is there an associated bitmap?
-          int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset);
+          int16_t xo = (int8_t)pgm_read_byte(&table[to+5]); //pgm_read_byte(&glyph->xOffset);
           if(textwrap && ((cursor_x + textsize * (xo + w)) >= _width)) {
             // Drawing character would go off right edge; wrap to new line
             cursor_x  = 0;
@@ -1840,7 +1850,7 @@ size_t TFT_HX8357_Due::write(uint8_t utf8)
           }
           drawChar(cursor_x, cursor_y, uniCode, textcolor, textbgcolor, textsize);
         }
-        cursor_x += pgm_read_byte(&glyph->xAdvance) * (int16_t)textsize;
+        cursor_x += pgm_read_byte(&table[to+4]) * (int16_t)textsize; //pgm_read_byte(&glyph->xAdvance) * (int16_t)textsize;
       }
     }
 
@@ -1887,8 +1897,10 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
       if((uniCode >= first) && (uniCode <= (uint8_t)pgm_read_byte(&gfxFont->last)))
       {
         uint8_t   c2    = uniCode - pgm_read_byte(&gfxFont->first);
-        GFXglyph *glyph = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c2]);
-        return pgm_read_byte(&glyph->xAdvance) * textsize;
+        //GFXglyph *glyph = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c2]);
+        uint8_t  *table  = (uint8_t *)glyphTable;
+        uint16_t to = c2*8;
+        return pgm_read_byte(&table[to+4]) * textsize; //pgm_read_byte(&glyph->xAdvance) * textsize;
       }
       else
       {
@@ -2462,19 +2474,24 @@ int16_t TFT_HX8357_Due::drawFloat(float floatNumber, int16_t dp, int16_t poX, in
 
 #ifdef LOAD_GFXFF
 
-void TFT_HX8357_Due::setFreeFont(const GFXfont *f) {
+void TFT_HX8357_Due::setFreeFont(const GFXfont *f, const uint8_t *bitmapStart, const GFXglyph *tableStart) {
   //textdatum = L_BASELINE;
   textfont = 1;
   gfxFont = (GFXfont *)f;
+  glyphBitmap = (uint32_t) bitmapStart;
+  glyphTable  = (uint32_t) tableStart;
 
   // Save above baseline (for say H)  and below baseline (for y tail) heights 
   uint16_t uniCode = FF_HEIGHT - pgm_read_byte(&gfxFont->first);
-  GFXglyph *glyph1  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
-  glyph_ab = -pgm_read_byte(&glyph1->yOffset);
+  //GFXglyph *glyph1  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
+  uint8_t  *table  = (uint8_t *)glyphTable;
+  uint16_t to = uniCode*8;
+  glyph_ab = -pgm_read_byte(&table[to+6]); //pgm_read_byte(&glyph1->yOffset);
 
   uniCode = FF_BOTTOM - pgm_read_byte(&gfxFont->first);
-  GFXglyph *glyph2  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
-  glyph_bb = pgm_read_byte(&glyph2->height) + (int8_t)pgm_read_byte(&glyph2->yOffset);
+  //GFXglyph *glyph2  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
+  to = uniCode*8;
+  glyph_bb = pgm_read_byte(&table[to+3]) + (int8_t)pgm_read_byte(&table[to+6]); // pgm_read_byte(&glyph2->height) + (int8_t)pgm_read_byte(&glyph2->yOffset);
 }
 
 #else

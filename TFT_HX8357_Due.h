@@ -269,8 +269,8 @@ class TFT_HX8357_Due
            setTextPadding(uint16_t x_width),
 
 #ifdef LOAD_GFXFF
-           setFreeFont(const GFXfont *f = NULL),
-           setTextFont(const GFXfont *f = NULL),
+           setFreeFont(const GFXfont *f = NULL, const uint8_t *glyphBitmap = 0, const GFXglyph *glyphTable = 0),
+           //setTextFont(const GFXfont *f = NULL, const uint8_t *glyphBitmap = 0, const GFXglyph *glyphTable = 0),
 #else
            setFreeFont(uint8_t font),
 #endif
@@ -327,6 +327,7 @@ class TFT_HX8357_Due
   uint16_t textcolor, textbgcolor,
            pixelfg, pixelbg,          // Pixel colours pre-computed
            fontsloaded;
+  uint32_t glyphBitmap, glyphTable;
 
   uint32_t fgA, fgB, fgC, fgD, bgA, bgB, bgC, bgD; // Pre-computed colour bit patterns
   uint32_t lo1A, lo1C, lo1D, lo2A, lo2C, lo2D; // Pre-computed byte bit patterns

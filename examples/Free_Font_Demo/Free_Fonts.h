@@ -8,19 +8,14 @@
 // HX8357 library "Fonts/GFXFF" folder.
 //
 // To save a lot of typing long names, each font can easily be referenced in the
-// sketch in three ways, either with:
+// sketch in two ways, either with:
 //
-//    1. Font file name with the & in front such as &FreeSansBoldOblique24pt7b
-//       an example being:
-//
-//       tft.setFreeFont(&FreeSansBoldOblique24pt7b);
-//
-//    2. FF# where # is a number determined by looking at the list below
+//    1. FF# where # is a number determined by looking at the list below
 //       an example being:
 //
 //       tft.setFreeFont(FF32);
 //
-//    3. An abbreviation of the file name. Look at the list below to see
+//    2. An abbreviation of the file name. Look at the list below to see
 //       the abbreviations used, for example:
 //
 //       tft.setFreeFont(FSSBO24)
@@ -39,7 +34,7 @@
 //
 //      tft.setFreeFont(NULL); // Set font to GLCD
 
-// Use these when printing or drawing text in GLCD and high rendering speed fonts
+// Use these when printing or drawing text in GLCD and high rendering speed fonts (FONT2- FONT8)
 #define GFXFF 1
 #define GLCD  0
 #define FONT2 2
@@ -119,126 +114,126 @@
 #include <Fonts/GFXFF/FreeSerifBoldItalic24pt7b.h> // FF48 or FSBI24
 
 
-#define FM9 &FreeMono9pt7b
-#define FM12 &FreeMono12pt7b
-#define FM18 &FreeMono18pt7b
-#define FM24 &FreeMono24pt7b
+#define FM9 &FreeMono9pt7b,FreeMono9pt7bBitmaps,FreeMono9pt7bGlyphs
+#define FM12 &FreeMono12pt7b,FreeMono12pt7bBitmaps,FreeMono12pt7bGlyphs
+#define FM18 &FreeMono18pt7b,FreeMono18pt7bBitmaps,FreeMono18pt7bGlyphs
+#define FM24 &FreeMono24pt7b,FreeMono24pt7bBitmaps,FreeMono24pt7bGlyphs
 
-#define FMB9 &FreeMonoBold9pt7b
-#define FMB12 &FreeMonoBold12pt7b
-#define FMB18 &FreeMonoBold18pt7b
-#define FMB24 &FreeMonoBold24pt7b
+#define FMB9 &FreeMonoBold9pt7b,FreeMonoBold9pt7bBitmaps,FreeMonoBold9pt7bGlyphs
+#define FMB12 &FreeMonoBold12pt7b,FreeMonoBold12pt7bBitmaps,FreeMonoBold12pt7bGlyphs
+#define FMB18 &FreeMonoBold18pt7b,FreeMonoBold18pt7bBitmaps,FreeMonoBold18pt7bGlyphs
+#define FMB24 &FreeMonoBold24pt7b,FreeMonoBold24pt7bBitmaps,FreeMonoBold24pt7bGlyphs
 
-#define FMO9 &FreeMonoOblique9pt7b
-#define FMO12 &FreeMonoOblique12pt7b
-#define FMO18 &FreeMonoOblique18pt7b
-#define FMO24 &FreeMonoOblique24pt7b
+#define FMO9 &FreeMonoOblique9pt7b,FreeMonoOblique9pt7bBitmaps,FreeMonoOblique9pt7bGlyphs
+#define FMO12 &FreeMonoOblique12pt7b,FreeMonoOblique12pt7bBitmaps,FreeMonoOblique12pt7bGlyphs
+#define FMO18 &FreeMonoOblique18pt7b,FreeMonoOblique18pt7bBitmaps,FreeMonoOblique18pt7bGlyphs
+#define FMO24 &FreeMonoOblique24pt7b,FreeMonoOblique24pt7bBitmaps,FreeMonoOblique24pt7bGlyphs
 
-#define FMBO9 &FreeMonoBoldOblique9pt7b
-#define FMBO12 &FreeMonoBoldOblique12pt7b
-#define FMBO18 &FreeMonoBoldOblique18pt7b
-#define FMBO24 &FreeMonoBoldOblique24pt7b
+#define FMBO9 &FreeMonoBoldOblique9pt7b,FreeMonoBoldOblique9pt7bBitmaps,FreeMonoBoldOblique9pt7bGlyphs
+#define FMBO12 &FreeMonoBoldOblique12pt7b,FreeMonoBoldOblique12pt7bBitmaps,FreeMonoBoldOblique12pt7bGlyphs
+#define FMBO18 &FreeMonoBoldOblique18pt7b,FreeMonoBoldOblique18pt7bBitmaps,FreeMonoBoldOblique18pt7bGlyphs
+#define FMBO24 &FreeMonoBoldOblique24pt7b,FreeMonoBoldOblique24pt7bBitmaps,FreeMonoBoldOblique24pt7bGlyphs
 
-#define FSS9 &FreeSans9pt7b
-#define FSS12 &FreeSans12pt7b
-#define FSS18 &FreeSans18pt7b
-#define FSS24 &FreeSans24pt7b
+#define FSS9 &FreeSans9pt7b,FreeSans9pt7bBitmaps,FreeSans9pt7bGlyphs
+#define FSS12 &FreeSans12pt7b,FreeSans12pt7bBitmaps,FreeSans12pt7bGlyphs
+#define FSS18 &FreeSans18pt7b,FreeSans18pt7bBitmaps,FreeSans18pt7bGlyphs
+#define FSS24 &FreeSans24pt7b,FreeSans24pt7bBitmaps,FreeSans24pt7bGlyphs
 
-#define FSSB9 &FreeSansBold9pt7b
-#define FSSB12 &FreeSansBold12pt7b
-#define FSSB18 &FreeSansBold18pt7b
-#define FSSB24 &FreeSansBold24pt7b
+#define FSSB9 &FreeSansBold9pt7b,FreeSansBold9pt7bBitmaps,FreeSansBold9pt7bGlyphs
+#define FSSB12 &FreeSansBold12pt7b,FreeSansBold12pt7bBitmaps,FreeSansBold12pt7bGlyphs
+#define FSSB18 &FreeSansBold18pt7b,FreeSansBold18pt7bBitmaps,FreeSansBold18pt7bGlyphs
+#define FSSB24 &FreeSansBold24pt7b,FreeSansBold24pt7bBitmaps,FreeSansBold24pt7bGlyphs
 
-#define FSSO9 &FreeSansOblique9pt7b
-#define FSSO12 &FreeSansOblique12pt7b
-#define FSSO18 &FreeSansOblique18pt7b
-#define FSSO24 &FreeSansOblique24pt7b
+#define FSSO9 &FreeSansOblique9pt7b,FreeSansOblique9pt7bBitmaps,FreeSansOblique9pt7bGlyphs
+#define FSSO12 &FreeSansOblique12pt7b,FreeSansOblique12pt7bBitmaps,FreeSansOblique12pt7bGlyphs
+#define FSSO18 &FreeSansOblique18pt7b,FreeSansOblique18pt7bBitmaps,FreeSansOblique18pt7bGlyphs
+#define FSSO24 &FreeSansOblique24pt7b,FreeSansOblique24pt7bBitmaps,FreeSansOblique24pt7bGlyphs
 
-#define FSSBO9 &FreeSansBoldOblique9pt7b
-#define FSSBO12 &FreeSansBoldOblique12pt7b
-#define FSSBO18 &FreeSansBoldOblique18pt7b
-#define FSSBO24 &FreeSansBoldOblique24pt7b
+#define FSSBO9 &FreeSansBoldOblique9pt7b,FreeSansBoldOblique9pt7bBitmaps,FreeSansBoldOblique9pt7bGlyphs
+#define FSSBO12 &FreeSansBoldOblique12pt7b,FreeSansBoldOblique12pt7bBitmaps,FreeSansBoldOblique12pt7bGlyphs
+#define FSSBO18 &FreeSansBoldOblique18pt7b,FreeSansBoldOblique18pt7bBitmaps,FreeSansBoldOblique18pt7bGlyphs
+#define FSSBO24 &FreeSansBoldOblique24pt7b,FreeSansBoldOblique24pt7bBitmaps,FreeSansBoldOblique24pt7bGlyphs
 
-#define FS9 &FreeSerif9pt7b
-#define FS12 &FreeSerif12pt7b
-#define FS18 &FreeSerif18pt7b
-#define FS24 &FreeSerif24pt7b
+#define FS9 &FreeSerif9pt7b,FreeSerif9pt7bBitmaps,FreeSerif9pt7bGlyphs
+#define FS12 &FreeSerif12pt7b,FreeSerif12pt7bBitmaps,FreeSerif12pt7bGlyphs
+#define FS18 &FreeSerif18pt7b,FreeSerif18pt7bBitmaps,FreeSerif18pt7bGlyphs
+#define FS24 &FreeSerif24pt7b,FreeSerif24pt7bBitmaps,FreeSerif24pt7bGlyphs
 
-#define FSI9 &FreeSerifItalic9pt7b
-#define FSI12 &FreeSerifItalic12pt7b
-#define FSI19 &FreeSerifItalic18pt7b
-#define FSI24 &FreeSerifItalic24pt7b
+#define FSI9 &FreeSerifItalic9pt7b,FreeSerifItalic9pt7bBitmaps,FreeSerifItalic9pt7bGlyphs
+#define FSI12 &FreeSerifItalic12pt7b,FreeSerifItalic12pt7bBitmaps,FreeSerifItalic12pt7bGlyphs
+#define FSI19 &FreeSerifItalic18pt7b,FreeSerifItalic18pt7bBitmaps,FreeSerifItalic18pt7bGlyphs
+#define FSI24 &FreeSerifItalic24pt7b,FreeSerifItalic24pt7bBitmaps,FreeSerifItalic24pt7bGlyphs
 
-#define FSB9 &FreeSerifBold9pt7b
-#define FSB12 &FreeSerifBold12pt7b
-#define FSB18 &FreeSerifBold18pt7b
-#define FSB24 &FreeSerifBold24pt7b
+#define FSB9 &FreeSerifBold9pt7b,FreeSerifBold9pt7bBitmaps,FreeSerifBold9pt7bGlyphs
+#define FSB12 &FreeSerifBold12pt7b,FreeSerifBold12pt7bBitmaps,FreeSerifBold12pt7bGlyphs
+#define FSB18 &FreeSerifBold18pt7b,FreeSerifBold18pt7bBitmaps,FreeSerifBold18pt7bGlyphs
+#define FSB24 &FreeSerifBold24pt7b,FreeSerifBold24pt7bBitmaps,FreeSerifBold24pt7bGlyphs
 
-#define FSBI9 &FreeSerifBoldItalic9pt7b
-#define FSBI12 &FreeSerifBoldItalic12pt7b
-#define FSBI18 &FreeSerifBoldItalic18pt7b
-#define FSBI24 &FreeSerifBoldItalic24pt7b
+#define FSBI9 &FreeSerifBoldItalic9pt7b,FreeSerifBoldItalic9pt7bBitmaps,FreeSerifBoldItalic9pt7bGlyphs
+#define FSBI12 &FreeSerifBoldItalic12pt7b,FreeSerifBoldItalic12pt7bBitmaps,FreeSerifBoldItalic12pt7bGlyphs
+#define FSBI18 &FreeSerifBoldItalic18pt7b,FreeSerifBoldItalic18pt7bBitmaps,FreeSerifBoldItalic18pt7bGlyphs
+#define FSBI24 &FreeSerifBoldItalic24pt7b,FreeSerifBoldItalic24pt7bBitmaps,FreeSerifBoldItalic24pt7bGlyphs
 
 #define FF0 NULL //ff0 reserved for GLCD
-#define FF1 &FreeMono9pt7b
-#define FF2 &FreeMono12pt7b
-#define FF3 &FreeMono18pt7b
-#define FF4 &FreeMono24pt7b
+#define FF1 &FreeMono9pt7b,FreeMono9pt7bBitmaps,FreeMono9pt7bGlyphs
+#define FF2 &FreeMono12pt7b,FreeMono12pt7bBitmaps,FreeMono12pt7bGlyphs
+#define FF3 &FreeMono18pt7b,FreeMono18pt7bBitmaps,FreeMono18pt7bGlyphs
+#define FF4 &FreeMono24pt7b,FreeMono24pt7bBitmaps,FreeMono24pt7bGlyphs
 
-#define FF5 &FreeMonoBold9pt7b
-#define FF6 &FreeMonoBold12pt7b
-#define FF7 &FreeMonoBold18pt7b
-#define FF8 &FreeMonoBold24pt7b
+#define FF5 &FreeMonoBold9pt7b,FreeMonoBold9pt7bBitmaps,FreeMonoBold9pt7bGlyphs
+#define FF6 &FreeMonoBold12pt7b,FreeMonoBold12pt7bBitmaps,FreeMonoBold12pt7bGlyphs
+#define FF7 &FreeMonoBold18pt7b,FreeMonoBold18pt7bBitmaps,FreeMonoBold18pt7bGlyphs
+#define FF8 &FreeMonoBold24pt7b,FreeMonoBold24pt7bBitmaps,FreeMonoBold24pt7bGlyphs
 
-#define FF9 &FreeMonoOblique9pt7b
-#define FF10 &FreeMonoOblique12pt7b
-#define FF11 &FreeMonoOblique18pt7b
-#define FF12 &FreeMonoOblique24pt7b
+#define FF9 &FreeMonoOblique9pt7b,FreeMonoOblique9pt7bBitmaps,FreeMonoOblique9pt7bGlyphs
+#define FF10 &FreeMonoOblique12pt7b,FreeMonoOblique12pt7bBitmaps,FreeMonoOblique12pt7bGlyphs
+#define FF11 &FreeMonoOblique18pt7b,FreeMonoOblique18pt7bBitmaps,FreeMonoOblique18pt7bGlyphs
+#define FF12 &FreeMonoOblique24pt7b,FreeMonoOblique24pt7bBitmaps,FreeMonoOblique24pt7bGlyphs
 
-#define FF13 &FreeMonoBoldOblique9pt7b
-#define FF14 &FreeMonoBoldOblique12pt7b
-#define FF15 &FreeMonoBoldOblique18pt7b
-#define FF16 &FreeMonoBoldOblique24pt7b
+#define FF13 &FreeMonoBoldOblique9pt7b,FreeMonoBoldOblique9pt7bBitmaps,FreeMonoBoldOblique9pt7bGlyphs
+#define FF14 &FreeMonoBoldOblique12pt7b,FreeMonoBoldOblique12pt7bBitmaps,FreeMonoBoldOblique12pt7bGlyphs
+#define FF15 &FreeMonoBoldOblique18pt7b,FreeMonoBoldOblique18pt7bBitmaps,FreeMonoBoldOblique18pt7bGlyphs
+#define FF16 &FreeMonoBoldOblique24pt7b,FreeMonoBoldOblique24pt7bBitmaps,FreeMonoBoldOblique24pt7bGlyphs
 
-#define FF17 &FreeSans9pt7b
-#define FF18 &FreeSans12pt7b
-#define FF19 &FreeSans18pt7b
-#define FF20 &FreeSans24pt7b
+#define FF17 &FreeSans9pt7b,FreeSans9pt7bBitmaps,FreeSans9pt7bGlyphs
+#define FF18 &FreeSans12pt7b,FreeSans12pt7bBitmaps,FreeSans12pt7bGlyphs
+#define FF19 &FreeSans18pt7b,FreeSans18pt7bBitmaps,FreeSans18pt7bGlyphs
+#define FF20 &FreeSans24pt7b,FreeSans24pt7bBitmaps,FreeSans24pt7bGlyphs
 
-#define FF21 &FreeSansBold9pt7b
-#define FF22 &FreeSansBold12pt7b
-#define FF23 &FreeSansBold18pt7b
-#define FF24 &FreeSansBold24pt7b
+#define FF21 &FreeSansBold9pt7b,FreeSansBold9pt7bBitmaps,FreeSansBold9pt7bGlyphs
+#define FF22 &FreeSansBold12pt7b,FreeSansBold12pt7bBitmaps,FreeSansBold12pt7bGlyphs
+#define FF23 &FreeSansBold18pt7b,FreeSansBold18pt7bBitmaps,FreeSansBold18pt7bGlyphs
+#define FF24 &FreeSansBold24pt7b,FreeSansBold24pt7bBitmaps,FreeSansBold24pt7bGlyphs
 
-#define FF25 &FreeSansOblique9pt7b
-#define FF26 &FreeSansOblique12pt7b
-#define FF27 &FreeSansOblique18pt7b
-#define FF28 &FreeSansOblique24pt7b
+#define FF25 &FreeSansOblique9pt7b,FreeSansOblique9pt7bBitmaps,FreeSansOblique9pt7bGlyphs
+#define FF26 &FreeSansOblique12pt7b,FreeSansOblique12pt7bBitmaps,FreeSansOblique12pt7bGlyphs
+#define FF27 &FreeSansOblique18pt7b,FreeSansOblique18pt7bBitmaps,FreeSansOblique18pt7bGlyphs
+#define FF28 &FreeSansOblique24pt7b,FreeSansOblique24pt7bBitmaps,FreeSansOblique24pt7bGlyphs
 
-#define FF29 &FreeSansBoldOblique9pt7b
-#define FF30 &FreeSansBoldOblique12pt7b
-#define FF31 &FreeSansBoldOblique18pt7b
-#define FF32 &FreeSansBoldOblique24pt7b
+#define FF29 &FreeSansBoldOblique9pt7b,FreeSansBoldOblique9pt7bBitmaps,FreeSansBoldOblique9pt7bGlyphs
+#define FF30 &FreeSansBoldOblique12pt7b,FreeSansBoldOblique12pt7bBitmaps,FreeSansBoldOblique12pt7bGlyphs
+#define FF31 &FreeSansBoldOblique18pt7b,FreeSansBoldOblique18pt7bBitmaps,FreeSansBoldOblique18pt7bGlyphs
+#define FF32 &FreeSansBoldOblique24pt7b,FreeSansBoldOblique24pt7bBitmaps,FreeSansBoldOblique24pt7bGlyphs
 
-#define FF33 &FreeSerif9pt7b
-#define FF34 &FreeSerif12pt7b
-#define FF35 &FreeSerif18pt7b
-#define FF36 &FreeSerif24pt7b
+#define FF33 &FreeSerif9pt7b,FreeSerif9pt7bBitmaps,FreeSerif9pt7bGlyphs
+#define FF34 &FreeSerif12pt7b,FreeSerif12pt7bBitmaps,FreeSerif12pt7bGlyphs
+#define FF35 &FreeSerif18pt7b,FreeSerif18pt7bBitmaps,FreeSerif18pt7bGlyphs
+#define FF36 &FreeSerif24pt7b,FreeSerif24pt7bBitmaps,FreeSerif24pt7bGlyphs
 
-#define FF37 &FreeSerifItalic9pt7b
-#define FF38 &FreeSerifItalic12pt7b
-#define FF39 &FreeSerifItalic18pt7b
-#define FF40 &FreeSerifItalic24pt7b
+#define FF37 &FreeSerifItalic9pt7b,FreeSerifItalic9pt7bBitmaps,FreeSerifItalic9pt7bGlyphs
+#define FF38 &FreeSerifItalic12pt7b,FreeSerifItalic12pt7bBitmaps,FreeSerifItalic12pt7bGlyphs
+#define FF39 &FreeSerifItalic18pt7b,FreeSerifItalic18pt7bBitmaps,FreeSerifItalic18pt7bGlyphs
+#define FF40 &FreeSerifItalic24pt7b,FreeSerifItalic24pt7bBitmaps,FreeSerifItalic24pt7bGlyphs
 
-#define FF41 &FreeSerifBold9pt7b
-#define FF42 &FreeSerifBold12pt7b
-#define FF43 &FreeSerifBold18pt7b
-#define FF44 &FreeSerifBold24pt7b
+#define FF41 &FreeSerifBold9pt7b,FreeSerifBold9pt7bBitmaps,FreeSerifBold9pt7bGlyphs
+#define FF42 &FreeSerifBold12pt7b,FreeSerifBold12pt7bBitmaps,FreeSerifBold12pt7bGlyphs
+#define FF43 &FreeSerifBold18pt7b,FreeSerifBold18pt7bBitmaps,FreeSerifBold18pt7bGlyphs
+#define FF44 &FreeSerifBold24pt7b,FreeSerifBold24pt7bBitmaps,FreeSerifBold24pt7bGlyphs
 
-#define FF45 &FreeSerifBoldItalic9pt7b
-#define FF46 &FreeSerifBoldItalic12pt7b
-#define FF47 &FreeSerifBoldItalic18pt7b
-#define FF48 &FreeSerifBoldItalic24pt7b
+#define FF45 &FreeSerifBoldItalic9pt7b,FreeSerifBoldItalic9pt7bBitmaps,FreeSerifBoldItalic9pt7bGlyphs
+#define FF46 &FreeSerifBoldItalic12pt7b,FreeSerifBoldItalic12pt7bBitmaps,FreeSerifBoldItalic12pt7bGlyphs
+#define FF47 &FreeSerifBoldItalic18pt7b,FreeSerifBoldItalic18pt7bBitmaps,FreeSerifBoldItalic18pt7bGlyphs
+#define FF48 &FreeSerifBoldItalic24pt7b,FreeSerifBoldItalic24pt7bBitmaps,FreeSerifBoldItalic24pt7bGlyphs
 
 #else // LOAD_GFXFF not defined so setup defaults to prevent error messages
 
