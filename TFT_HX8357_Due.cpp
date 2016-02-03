@@ -212,7 +212,7 @@ void TFT_HX8357_Due::init(void)
     digitalWrite(_rst, HIGH);
     delay(10);
 
-#ifndef HX8357C
+#ifdef HX8357B
 
 // Configure HX8357-B display
     writecommand(0x11);
@@ -280,6 +280,8 @@ void TFT_HX8357_Due::init(void)
 // End of HX8357-B display configuration
 
 #else
+
+#ifdef HX8357C
 
 // HX8357-C display initialisation
 
@@ -384,6 +386,76 @@ void TFT_HX8357_Due::init(void)
 	writecommand(0x29); // Display on
 	
 	delay(120);
+
+#else // Must be an ILI9481
+
+// Configure ILI9481 display
+
+    writecommand(0x11);
+    delay(20);
+    writecommand(0xD0);
+    writedata(0x07);
+    writedata(0x42);
+    writedata(0x18);
+
+    writecommand(0xD1);
+    writedata(0x00);
+    writedata(0x07);
+    writedata(0x10);
+
+    writecommand(0xD2);
+    writedata(0x01);
+    writedata(0x02);
+
+    writecommand(0xC0);
+    writedata(0x10);
+    writedata(0x3B);
+    writedata(0x00);
+    writedata(0x02);
+    writedata(0x11);
+
+    writecommand(0xC5);
+    writedata(0x03);
+
+    writecommand(0xC8);
+    writedata(0x00);
+    writedata(0x32);
+    writedata(0x36);
+    writedata(0x45);
+    writedata(0x06);
+    writedata(0x16);
+    writedata(0x37);
+    writedata(0x75);
+    writedata(0x77);
+    writedata(0x54);
+    writedata(0x0C);
+    writedata(0x00);
+
+    writecommand(0x36);
+    writedata(0x0A);
+
+    writecommand(0x3A);
+    writedata(0x55);
+
+    writecommand(0x2A);
+    writedata(0x00);
+    writedata(0x00);
+    writedata(0x01);
+    writedata(0x3F);
+
+    writecommand(0x2B);
+    writedata(0x00);
+    writedata(0x00);
+    writedata(0x01);
+    writedata(0xDF);
+
+    delay(120);
+    writecommand(0x29);
+
+    delay(25);
+// End of ILI9481 display configuration
+#endif
+
 #endif
 
 #ifdef KEEP_CS_LOW

@@ -139,8 +139,8 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 
 
 // These register enumerations are not all used, but kept for possible future use
-#define HX8357D 0xD
-#define HX8357B 0xB
+#define HX8357D_XXX 0xD
+#define HX8357B_XXX 0xB
 
 #define HX8357_NOP     0x00
 #define HX8357_SWRESET 0x01
