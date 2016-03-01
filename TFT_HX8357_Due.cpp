@@ -1438,9 +1438,10 @@ void TFT_HX8357_Due::pushColors(uint16_t *data, uint8_t len)
   CS_H;
 }
 
+
 /***************************************************************************************
 ** Function name:           pushColors
-** Description:             push an aray of pixels for 16 bit raw image drawing
+** Description:             push an 8 bit array of pixels for 16 bit raw image drawing
 ***************************************************************************************/
 // Assumes that setWindow() has previously been called
 
@@ -1454,6 +1455,30 @@ void TFT_HX8357_Due::pushColors(uint8_t *data, uint16_t len)
     write16(color);
     WR_SB;
   }
+  CS_H;
+}
+
+/***************************************************************************************
+** Function name:           pushColor16
+** Description:             push a 16 bit array of pixels for 16 bit raw image drawing
+***************************************************************************************/
+// Assumes that setWindow() has previously been called
+
+void TFT_HX8357_Due::pushColor16(uint16_t *data, uint16_t len)
+{
+  CS_L;
+  while(len>7) {
+    len -=8;
+    write16(*data++); WR_SB;
+    write16(*data++); WR_SB;
+    write16(*data++); WR_SB;
+    write16(*data++); WR_SB;
+    write16(*data++); WR_SB;
+    write16(*data++); WR_SB;
+    write16(*data++); WR_SB;
+    write16(*data++); WR_SB;
+  }
+  while (len--) {write16(*data++); WR_SB;}
   CS_H;
 }
 
