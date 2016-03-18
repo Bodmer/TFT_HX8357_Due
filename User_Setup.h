@@ -13,6 +13,7 @@
 #define HX8357B
 //#define HX8357C
 //#define ILI9481
+//#define ILI9481_8BIT
 
 // ##################################################################################
 //
@@ -82,7 +83,7 @@
 // This only speeds things up a little (0 - 2%)
 // We can do this safely as the CS line is not shared with other functions
 
-#define KEEP_CS_LOW
+//#define KEEP_CS_LOW
 
 
 // ##################################################################################

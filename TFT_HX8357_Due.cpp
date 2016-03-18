@@ -76,11 +76,24 @@
 ***************************************************************************************/
 TFT_HX8357_Due::TFT_HX8357_Due(int16_t w, int16_t h)
 {
+
+#ifndef ILI9481_8BIT
   _cs   = 40;
   _rs   = 38;
   _rst  = 41;
   _wr   = 39;
   _fcs  = 44; //Unused FLASH chip select
+#else
+  _cs   = A3;
+  _rs   = A2;
+  _rst  = A4;
+  _wr   = A1;
+  _fcs  = A3; //Unused FLASH chip select
+
+  // Set RD high as we do not use it in this version of the library
+  pinMode(A0, OUTPUT);
+  digitalWrite(A0, HIGH);
+#endif
 
   pinMode(_rst, OUTPUT);
   digitalWrite(_rst, HIGH);
@@ -98,7 +111,7 @@ TFT_HX8357_Due::TFT_HX8357_Due(int16_t w, int16_t h)
   pinMode(_fcs, OUTPUT);
   digitalWrite(_fcs, HIGH); // Stop line floating
 
-
+#ifndef ILI9481_8BIT
   // Set 16 bit port pins to output on Due
   pinMode(29, OUTPUT);
   pinMode(28, OUTPUT);
@@ -116,6 +129,17 @@ TFT_HX8357_Due::TFT_HX8357_Due(int16_t w, int16_t h)
   pinMode(35, OUTPUT);
   pinMode(36, OUTPUT);
   pinMode(37, OUTPUT);
+#else
+  // Set 8 bit port pins to output on Due
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+#endif
 
   _width    = w;
   _height   = h;
@@ -171,7 +195,11 @@ void TFT_HX8357_Due::writecommand(uint8_t c)
 {
 SETUP_CS_L;
 RS_L;
+#ifdef ILI9481_8BIT
+lo_byte(c);
+#else
 write16(c);
+#endif
 WR_STB;
 RS_H;
 SETUP_CS_H;
@@ -184,7 +212,11 @@ SETUP_CS_H;
 void TFT_HX8357_Due::writedata(uint8_t c)
 {
 SETUP_CS_L;
+#ifdef ILI9481_8BIT
+lo_byte(c);
+#else
 write16(c);
+#endif
 WR_STB;
 SETUP_CS_H;
 }
@@ -204,10 +236,37 @@ void TFT_HX8357_Due::begin(void)
 ***************************************************************************************/
 void TFT_HX8357_Due::init(void)
 {
+  pinMode(_rst, OUTPUT);
+  digitalWrite(_rst, HIGH);
+
+  pinMode(_rs, OUTPUT);
+  pinMode(_cs, OUTPUT);
+  pinMode(_wr, OUTPUT);
+
+  digitalWrite(_rs, HIGH);
+
+  digitalWrite(_cs, HIGH);
+
+  digitalWrite(_wr, HIGH);
+
+  pinMode(_fcs, OUTPUT);
+  digitalWrite(_fcs, HIGH); // Stop line floating
+  pinMode(A0, OUTPUT);
+  digitalWrite(A0, HIGH);
+
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+
   // toggle RST low to reset
     digitalWrite(_rst, HIGH);
     delay(50);
-    digitalWrite(_rst, LOW);
+    //digitalWrite(_rst, LOW);
     delay(10);
     digitalWrite(_rst, HIGH);
     delay(10);
@@ -585,6 +644,93 @@ void TFT_HX8357_Due::fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t
       drawFastVLine(x0 - r, y0 - x, x + x + delta, color);
     }
   }
+}
+
+/***************************************************************************************
+** Function name:           drawEllipse
+** Description:             Draw a ellipse outline
+***************************************************************************************/
+void TFT_HX8357_Due::drawEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color)
+{
+  if (rx<2) return;
+  if (ry<2) return;
+  int16_t x, y;
+  int32_t rx2 = rx * rx;
+  int32_t ry2 = ry * ry;
+  int32_t fx2 = 4 * rx2;
+  int32_t fy2 = 4 * ry2;
+  int32_t s;
+
+  for (x = 0, y = ry, s = 2*ry2+rx2*(1-2*ry); ry2*x <= rx2*y; x++)
+  {
+    drawPixel(x0 + x, y0 + y, color);
+    drawPixel(x0 - x, y0 + y, color);
+    drawPixel(x0 + x, y0 - y, color);
+    drawPixel(x0 - x, y0 - y, color);
+    if (s >= 0)
+    {
+      s += fx2 * (1 - y);
+      y--;
+    }
+    s += ry2 * ((4 * x) + 6);
+  }
+
+  for (x = rx, y = 0, s = 2*rx2+ry2*(1-2*rx); rx2*y <= ry2*x; y++)
+  {
+    drawPixel(x0 + x, y0 + y, color);
+    drawPixel(x0 - x, y0 + y, color);
+    drawPixel(x0 + x, y0 - y, color);
+    drawPixel(x0 - x, y0 - y, color);
+    if (s >= 0)
+    {
+      s += fy2 * (1 - x);
+      x--;
+    }
+    s += rx2 * ((4 * y) + 6);
+  }
+}
+
+/***************************************************************************************
+** Function name:           fillEllipse
+** Description:             draw a filled ellipse
+***************************************************************************************/
+void TFT_HX8357_Due::fillEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color)
+{
+  if (rx<2) return;
+  if (ry<2) return;
+  int16_t x, y;
+  int32_t rx2 = rx * rx;
+  int32_t ry2 = ry * ry;
+  int32_t fx2 = 4 * rx2;
+  int32_t fy2 = 4 * ry2;
+  int32_t s;
+
+  for (x = 0, y = ry, s = 2*ry2+rx2*(1-2*ry); ry2*x <= rx2*y; x++)
+  {
+    drawFastHLine(x0 - x, y0 - y, x + x + 1, color);
+    drawFastHLine(x0 - x, y0 + y, x + x + 1, color);
+
+    if (s >= 0)
+    {
+      s += fx2 * (1 - y);
+      y--;
+    }
+    s += ry2 * ((4 * x) + 6);
+  }
+
+  for (x = rx, y = 0, s = 2*rx2+ry2*(1-2*rx); rx2*y <= ry2*x; y++)
+  {
+    drawFastHLine(x0 - x, y0 - y, x + x + 1, color);
+    drawFastHLine(x0 - x, y0 + y, x + x + 1, color);
+
+    if (s >= 0)
+    {
+      s += fy2 * (1 - x);
+      x--;
+    }
+    s += rx2 * ((4 * y) + 6);
+  }
+
 }
 
 /***************************************************************************************
@@ -1412,8 +1558,12 @@ void TFT_HX8357_Due::pushColor(uint16_t color, uint16_t len)
 {
   if (color!=pixelfg) fgColor(color);
   CS_L;
+#ifdef ILI9481_8BIT
+  while(len--) {fgWrite();WR_STB;}
+#else
   fgWrite();
   while(len--) {WR_STB;}
+#endif
   CS_H;
 }
 
@@ -1539,7 +1689,11 @@ plo_byte2(x1);
         ramwr();
         fgWrite(); WR_SB; dlen--;
 
+#ifdef ILI9481_8BIT
+        while (dlen) { fgWrite(); WR_SB; dlen--; }
+#else
         while (dlen) { WR_SB; dlen--; }
+#endif
 
         y0 += ystep; xs=x0+1;
       }
@@ -1569,7 +1723,11 @@ plo_byte2(x1);
         ramwr();
         fgWrite(); WR_SB; dlen--;
 
-        while(dlen){  WR_SB; dlen--;}
+#ifdef ILI9481_8BIT
+        while (dlen) { fgWrite(); WR_SB; dlen--; }
+#else
+        while (dlen) { WR_SB; dlen--; }
+#endif
 
         y0 += ystep; xs=x0+1;
       }
@@ -1610,8 +1768,17 @@ plo_byte2(x);
   ramwr();
 
   if (color!=pixelfg) fgColor(color);
-  fgWrite();
 
+#ifdef ILI9481_8BIT
+  while (h>15) { h-=16;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+  }
+  while (h--) { fgWrite(); WR_SB; }
+#else
+  fgWrite();
   while (h>15) { h-=16;
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
@@ -1619,6 +1786,8 @@ plo_byte2(x);
     WR_STB;WR_STB;WR_STB;WR_STB;
   }
   while (h--) { WR_STB;}
+#endif
+
   CS_H;
 }
 
@@ -1654,8 +1823,17 @@ plo_byte2(y);
   ramwr();
 
   if (color!=pixelfg) fgColor(color);
-  fgWrite();
 
+#ifdef ILI9481_8BIT
+  while (w>15) { w-=16;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+  }
+  while (w--) { fgWrite(); WR_SB; }
+#else
+  fgWrite();
   while (w>15) { w-=16;
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
@@ -1663,6 +1841,8 @@ plo_byte2(y);
     WR_STB;WR_STB;WR_STB;WR_STB;
   }
   while(w--){ WR_STB;}
+#endif
+
   CS_H;
 }
 
@@ -1682,10 +1862,19 @@ void TFT_HX8357_Due::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16
   setAddrWindow(x, y, x+w-1, y+h-1);
 
   if (color!=pixelfg) fgColor(color);
-  fgWrite();
 
   uint32_t hw= h*w;
 
+#ifdef ILI9481_8BIT
+  while (hw>15) { hw-=16;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+  }
+  while (hw--) { fgWrite(); WR_SB; }
+#else
+  fgWrite();
   while (hw>47) { hw-=48; // Screen width/10
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
@@ -1709,6 +1898,8 @@ void TFT_HX8357_Due::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16
   }
 
   while(hw--) { WR_STB;}
+#endif
+
   CS_H;
 }
 
@@ -2191,6 +2382,15 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
           while (line--) { // In this case the while(line--) is faster
             pc++; // This is faster than putting pc+=line before while()
             setAddrWindow(px, py, px + ts, py + ts);
+
+#ifdef ILI9481_8BIT
+            if (ts) {
+              tnp = np;
+              // textsize > 1 so pixel count will be a multiple of 4
+              while (tnp) { tnp-=4; fgWrite();WR_SB;fgWrite();WR_SB;fgWrite();WR_SB;fgWrite();WR_SB; }
+            }
+            else { fgWrite();WR_SB; }
+#else
             fgWrite();
             if (ts) {
               tnp = np;
@@ -2198,6 +2398,7 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
               while (tnp) { tnp-=4; WR_STB;WR_STB;WR_STB;WR_STB; }
             }
             else { WR_SB; }
+#endif
 
             px += textsize;
 
@@ -2224,6 +2425,25 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
       setAddrWindow(x, y, x + width - 1, y + height - 1);
 
       // Maximum font size is equivalent to 180x180 pixels in area
+#ifdef ILI9481_8BIT
+      while (w > 0)
+      {
+        line = pgm_read_byte(flash_address++);
+        if (line & 0x80) {
+          line &= 0x7F;
+          fgWrite(); WR_SB;
+          w -= (line+1);
+          while(line>3){ line-=4; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; }
+          while(line)  { line--;  fgWrite();WR_SB;}
+        }
+        else {
+          bgWrite(); WR_SB;
+          w -= (line+1);
+          while(line>3){ line-=4; bgWrite();WR_SB; bgWrite();WR_SB; bgWrite();WR_SB; bgWrite();WR_SB; }
+          while(line)  { line--;  bgWrite();WR_SB;}
+        }
+      }
+#else
       while (w > 0)
       {
         line = pgm_read_byte(flash_address++);
@@ -2235,9 +2455,11 @@ int16_t TFT_HX8357_Due::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t
           bgWrite(); WR_H;
         }
         w -= (line+1);
+
         while(line>3){ line-=4; WR_STB; WR_STB; WR_STB; WR_STB; }
         while(line)  { line--;  WR_STB;}
       }
+#endif
       CS_H;
     }
   }
@@ -2602,10 +2824,12 @@ void TFT_HX8357_Due::setFreeFont(uint8_t font) {
 
 
 // #####################################################################################
-//  Unfortunately the Due bits allocated to the 16 bit bus are inconveniently scattered
+//  Unfortunately the Due bits allocated to the 8/16 bit bus are inconveniently scattered
 //  around different port bits so we have to jump through a few coding hoops to improve
 //  performance.  The following functions attempt to speed things up a bit.
 // #####################################################################################
+
+#ifndef ILI9481_8BIT
 
 /***************************************************************************************
 ** Function name:           Setup 16 bit value on TFT bus
@@ -2909,8 +3133,343 @@ void TFT_HX8357_Due::bgWrite(void)
 }
 
 
+
+
+
+#else  //Now define for the ILI9481_8BIT
+
+
+
+
+
+
+/***************************************************************************************
+** Function name:           Setup 16 bit value on TFT bus
+** Descriptions:            Sets or clears the bits on the bus
+***************************************************************************************/
+
+inline void TFT_HX8357_Due::write16(uint16_t word)
+{
+  
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+
+  // The compiler efficiently codes this
+  // so it is quite quick.                     Port.bit
+  if (word&0x8000) REG_PIOC_SODR = 0x1 << 23;  // C.23
+  if (word&0x4000) REG_PIOC_SODR = 0x1 << 24;  // C.24
+  if (word&0x2000) REG_PIOC_SODR = 0x1 << 25;  // C.25
+  if (word&0x1000) REG_PIOC_SODR = 0x1 << 26;  // C.26
+  if (word&0x0800) REG_PIOC_SODR = 0x1 << 28;  // C.28
+  if (word&0x0400) REG_PIOB_SODR = 0x1 << 25;  // B.25
+  if (word&0x0200) REG_PIOC_SODR = 0x1 << 21;  // C.21
+  if (word&0x0100) REG_PIOC_SODR = 0x1 << 22;  // C.22
+
+  WR_STB;
+
+  //                                           Port.bit
+  if (word&0x0080) REG_PIOC_SODR = 0x1 << 23;  // C.23
+  if (word&0x0040) REG_PIOC_SODR = 0x1 << 24;  // C.24
+  if (word&0x0020) REG_PIOC_SODR = 0x1 << 25;  // C.25
+  if (word&0x0010) REG_PIOC_SODR = 0x1 << 26;  // C.26
+  if (word&0x0008) REG_PIOC_SODR = 0x1 << 28;  // C.28
+  if (word&0x0004) REG_PIOB_SODR = 0x1 << 25;  // B.25
+  if (word&0x0002) REG_PIOC_SODR = 0x1 << 21;  // C.21
+  if (word&0x0001) REG_PIOC_SODR = 0x1 << 22;  // C.22
+}
+
+/***************************************************************************************
+** Function name:           Setup low byte on 16 bit TFT bus
+** Descriptions:            Sets or clears the bits on the bus
+***************************************************************************************/
+
+void TFT_HX8357_Due::lo_byte(uint16_t lo)
+{
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+  //                                         Port.bit
+  if (lo&0x0080) REG_PIOC_SODR = 0x1 << 23;  // C.23
+  if (lo&0x0040) REG_PIOC_SODR = 0x1 << 24;  // C.24
+  if (lo&0x0020) REG_PIOC_SODR = 0x1 << 25;  // C.25
+  if (lo&0x0010) REG_PIOC_SODR = 0x1 << 26;  // C.26
+  if (lo&0x0008) REG_PIOC_SODR = 0x1 << 28;  // C.28
+  if (lo&0x0004) REG_PIOB_SODR = 0x1 << 25;  // B.25
+  if (lo&0x0002) REG_PIOC_SODR = 0x1 << 21;  // C.21
+  if (lo&0x0001) REG_PIOC_SODR = 0x1 << 22;  // C.22
+
+  WR_L;
+
+}
+void TFT_HX8357_Due::plo_byte1(uint16_t lo)
+{
+  lo1B = 0; lo1C=0;
+
+  //                                 Port.bit
+  if (lo&0x0080) lo1C |= 0x1 << 23;  // C.23
+  if (lo&0x0040) lo1C |= 0x1 << 24;  // C.24
+  if (lo&0x0020) lo1C |= 0x1 << 25;  // C.25
+  if (lo&0x0010) lo1C |= 0x1 << 26;  // C.26
+  if (lo&0x0008) lo1C |= 0x1 << 28;  // C.28
+  if (lo&0x0004) lo1B |= 0x1 << 25;  // B.25
+  if (lo&0x0002) lo1C |= 0x1 << 21;  // C.21
+  if (lo&0x0001) lo1C |= 0x1 << 22;  // C.22
+}
+void TFT_HX8357_Due::plo_byte2(uint16_t lo)
+{
+  lo2B = 0; lo2C=0;
+  // The compiler efficiently codes this
+  // so it is quite quick.          Port.bit
+  if (lo&0x0080) lo2C |= 0x1 << 23;  // C.23
+  if (lo&0x0040) lo2C |= 0x1 << 24;  // C.24
+  if (lo&0x0020) lo2C |= 0x1 << 25;  // C.25
+  if (lo&0x0010) lo2C |= 0x1 << 26;  // C.26
+  if (lo&0x0008) lo2C |= 0x1 << 28;  // C.28
+  if (lo&0x0004) lo2B |= 0x1 << 25;  // B.25
+  if (lo&0x0002) lo2C |= 0x1 << 21;  // C.21
+  if (lo&0x0001) lo2C |= 0x1 << 22;  // C.22
+}
+
+void TFT_HX8357_Due::lo_byte1(void)
+{
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+  WR_L;
+  REG_PIOB_SODR = lo1B;
+  REG_PIOC_SODR = lo1C;
+}
+
+void TFT_HX8357_Due::lo_byte2(void)
+{
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+  WR_L;
+  REG_PIOB_SODR = lo2B;
+  REG_PIOC_SODR = lo2C;
+}
+/***************************************************************************************
+** Function name:           Pre-calculate port values for 16 bit colour write
+** Descriptions:            Sets foreground values, used to speed up text rendering
+***************************************************************************************/
+
+void TFT_HX8357_Due::fgColor(uint16_t c)
+{
+  fgA = 0; fgB = 0; fgC = 0; fgD = 0;
+  pixelfg = c;
+
+  // The compiler efficiently codes this
+  // so it is quite quick.
+  // High byte                   Port.bit
+  if (c&0x8000) fgD |= 0x1 << 23;  // C.23
+  if (c&0x4000) fgD |= 0x1 << 24;  // C.24
+  if (c&0x2000) fgD |= 0x1 << 25;  // C.25
+  if (c&0x1000) fgD |= 0x1 << 26;  // C.26
+  if (c&0x0800) fgD |= 0x1 << 28;  // C.28
+  if (c&0x0400) fgA |= 0x1 << 25;  // B.25
+  if (c&0x0200) fgD |= 0x1 << 21;  // C.21
+  if (c&0x0100) fgD |= 0x1 << 22;  // C.22
+
+  // Low byte                    Port.bit
+  if (c&0x0080) fgC |= 0x1 << 23;  // C.23
+  if (c&0x0040) fgC |= 0x1 << 24;  // C.24
+  if (c&0x0020) fgC |= 0x1 << 25;  // C.25
+  if (c&0x0010) fgC |= 0x1 << 26;  // C.26
+  if (c&0x0008) fgC |= 0x1 << 28;  // C.28
+  if (c&0x0004) fgB |= 0x1 << 25;  // B.25
+  if (c&0x0002) fgC |= 0x1 << 21;  // C.21
+  if (c&0x0001) fgC |= 0x1 << 22;  // C.22
+
+}
+
+/***************************************************************************************
+** Function name:           Pre-calculate port values for 16 bit colour write
+** Descriptions:            Sets background values, used to speed up text rendering
+***************************************************************************************/
+
+void TFT_HX8357_Due::bgColor(uint16_t c)
+{
+  bgA = 0; bgB = 0; bgC = 0; bgD = 0;
+  pixelbg = c;
+
+  // The compiler efficiently codes this
+  // so it is quite quick.
+  // High byte                   Port.bit
+  if (c&0x8000) bgD |= 0x1 << 23;  // C.23
+  if (c&0x4000) bgD |= 0x1 << 24;  // C.24
+  if (c&0x2000) bgD |= 0x1 << 25;  // C.25
+  if (c&0x1000) bgD |= 0x1 << 26;  // C.26
+  if (c&0x0800) bgD |= 0x1 << 28;  // C.28
+  if (c&0x0400) bgA |= 0x1 << 25;  // B.25
+  if (c&0x0200) bgD |= 0x1 << 21;  // C.21
+  if (c&0x0100) bgD |= 0x1 << 22;  // C.22
+
+  // Low byte                    Port.bit
+  if (c&0x0080) bgC |= 0x1 << 23;  // C.23
+  if (c&0x0040) bgC |= 0x1 << 24;  // C.24
+  if (c&0x0020) bgC |= 0x1 << 25;  // C.25
+  if (c&0x0010) bgC |= 0x1 << 26;  // C.26
+  if (c&0x0008) bgC |= 0x1 << 28;  // C.28
+  if (c&0x0004) bgB |= 0x1 << 25;  // B.25
+  if (c&0x0002) bgC |= 0x1 << 21;  // C.21
+  if (c&0x0001) bgC |= 0x1 << 22;  // C.22
+
+
+}
+
+/***************************************************************************************
+** Function name:           Write the common control words CASET, PASET and RAMWR
+** Descriptions:            Used to improve performance, also sets RS and WR low
+***************************************************************************************/
+
+void TFT_HX8357_Due::addrCmd(uint8_t cmd)
+{
+  if (cmd==HX8357_CASET) caset();
+  if (cmd==HX8357_PASET) paset();
+  if (cmd==HX8357_RAMWR) ramwr();
+}
+
+void TFT_HX8357_Due::caset(void)
+{
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+  RS_L;
+
+  //                      2
+//REG_PIOB_SODR = 0b00000000000000000000000000000000; // Write the CASET specific bits
+  //                   3 456701
+  REG_PIOC_SODR = 0b00010010001000000000000000000000; // Write the CASET specific bits
+
+  WR_STB;
+  RS_H;
+}
+
+void TFT_HX8357_Due::paset(void)
+{
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+  RS_L;
+
+  //                      2
+//REG_PIOB_SODR = 0b00000000000000000000000000000000; // Write the PASET specific bits
+  //                   3 456701
+  REG_PIOC_SODR = 0b00010010011000000000000000000000; // Write the PASET specific bits
+
+  WR_STB;
+  RS_H;
+}
+
+void TFT_HX8357_Due::ramwr(void)
+{
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+  RS_L;
+
+  //                      2
+  REG_PIOB_SODR = 0b00000010000000000000000000000000; // Write the RAMWR specific bits
+  //                   3 456701
+  REG_PIOC_SODR = 0b00010010000000000000000000000000; // Write the RAMWR specific bits
+
+  WR_STB;
+  RS_H;
+}
+
+/***************************************************************************************
+** Function name:           Write foreground colour to 16 bit bus
+** Descriptions:            Used to improve performance
+***************************************************************************************/
+
+void TFT_HX8357_Due::fgWrite(void)
+{
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+  REG_PIOB_SODR = fgA;
+  REG_PIOC_SODR = fgD;
+
+  WR_STB;
+
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+  WR_L;
+
+  REG_PIOB_SODR = fgB;
+  REG_PIOC_SODR = fgC;
+
+}
+
+/***************************************************************************************
+** Function name:           Write background colour to 16 bit bus
+** Descriptions:            Used to improve performance
+***************************************************************************************/
+
+void TFT_HX8357_Due::bgWrite(void)
+{
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+  REG_PIOB_SODR = bgA;
+  REG_PIOC_SODR = bgD;
+
+  WR_STB;
+
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
+  WR_L;
+
+  REG_PIOB_SODR = bgB;
+  REG_PIOC_SODR = bgC;
+}
+
+
+
+
+
+
+
+#endif //ILI9481_8BIT
+
 /***************************************************************************************
 ***************************************************************************************/
+
 
 // No getTextBounds() as we will only use the GFX fonts for static screen information
 

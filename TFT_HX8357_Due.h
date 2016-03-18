@@ -18,6 +18,11 @@
 // Include header file that defines the fonts loaded and the pins to be used
 #include <User_Setup.h>
 
+// These share the same code, only the port writes are affected for the 8 bit interface
+#ifdef ILI9481_8BIT
+  #define ILI9481
+#endif
+
 // Stop fonts etc being loaded multiple times
 #ifndef _TFT_HX8357_DueH_
 #define _TFT_HX8357_DueH_
@@ -101,41 +106,101 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 
 // Short write strobe, hold low for one period then high
 // Use where write is already set low during data setup
-#define WR_SB   REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
+  #define WR_SB  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
+
+// Chip select must be toggled during setup so these are a special case
+  #define SETUP_CS_H REG_PIOC_SODR = 0x1 << 8
+  #define SETUP_CS_L REG_PIOC_CODR = 0x1 << 8
+
+// Chip select can optionally be kept low after setup
+  #ifndef KEEP_CS_LOW
+    #define CS_H REG_PIOC_SODR = 0x1 << 8
+    #define CS_L REG_PIOC_CODR = 0x1 << 8
+  #else
+    #define CS_H // We do not define this so CS will not be set high
+    #define CS_L REG_PIOC_CODR = 0x1 << 8 // Play safe here
+  #endif
+
+// Change RS line state
+  #define RS_L REG_PIOC_CODR = 0x1 << 6
+  #define RS_H REG_PIOC_SODR = 0x1 << 6
 
 #else
+
+  #ifdef ILI9481_8BIT
+
+// Set WR low
+  #define WR_L REG_PIOA_CODR = 0x1 << 24;
+
+// Set WR high
+  #define WR_H REG_PIOA_SODR = 0x1 << 24
+
+// Write strobe low and then high
+  #define WR_STB REG_PIOA_CODR = 0x1 << 24;  REG_PIOA_SODR = 0x1 << 24;
+
+// Short write strobe
+// Use where write is already set low during data setup
+  #define WR_SB  REG_PIOA_SODR = 0x1 << 24;
+
+// Set RD low
+  #define RD_L REG_PIOA_CODR = 0x1 << 16
+
+// Set RD high
+  #define RD_H REG_PIOA_SODR = 0x1 << 16
+
+// Chip select must be toggled during setup so these are a special case
+  #define SETUP_CS_H REG_PIOA_SODR = 0x1 << 22;
+  #define SETUP_CS_L REG_PIOA_CODR = 0x1 << 22;
+
+// Chip select can optionally be kept low after setup
+  #ifndef KEEP_CS_LOW
+    #define CS_H REG_PIOA_SODR = 0x1 << 22;
+    #define CS_L REG_PIOA_CODR = 0x1 << 22;
+  #else
+    #define CS_H // We do not define this so CS will not be set high
+    #define CS_L REG_PIOA_CODR = 0x1 << 22; // Play safe here
+  #endif
+
+// Change RS line state
+  #define RS_L REG_PIOA_CODR = 0x1 << 23
+  #define RS_H REG_PIOA_SODR = 0x1 << 23
+
+  #else
 
 // Set WR low
   #define WR_L REG_PIOC_CODR = 0x1 << 7
 
 // Set WR high
-  #define WR_H WR_STB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7
+  #define WR_H REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7
 
 // The ILI9481 is slower and needs a longer write strobe to avoid spurious pixels
   #define WR_STB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
 
-// Short write strobe, hold low for one period then high
+// Short write strobe, hold low for two periods then high
 // Use where write is already set low during data setup
-#define WR_SB   REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
-
-#endif
+  #define WR_SB REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_CODR = 0x1 << 7;  REG_PIOC_SODR = 0x1 << 7;
 
 // Chip select must be toggled during setup so these are a special case
-#define SETUP_CS_H REG_PIOC_SODR = 0x1 << 8
-#define SETUP_CS_L REG_PIOC_CODR = 0x1 << 8
+  #define SETUP_CS_H REG_PIOC_SODR = 0x1 << 8
+  #define SETUP_CS_L REG_PIOC_CODR = 0x1 << 8
 
 // Chip select can optionally be kept low after setup
-#ifndef KEEP_CS_LOW
-  #define CS_H REG_PIOC_SODR = 0x1 << 8
-  #define CS_L REG_PIOC_CODR = 0x1 << 8
-#else
-  #define CS_H // We do not define this so CS will not be set high
-  #define CS_L REG_PIOC_CODR = 0x1 << 8 // Play safe here
-#endif
+  #ifndef KEEP_CS_LOW
+    #define CS_H REG_PIOC_SODR = 0x1 << 8
+    #define CS_L REG_PIOC_CODR = 0x1 << 8
+  #else
+    #define CS_H // We do not define this so CS will not be set high
+    #define CS_L REG_PIOC_CODR = 0x1 << 8 // Play safe here
+  #endif
 
 // Change RS line state
   #define RS_L REG_PIOC_CODR = 0x1 << 6
   #define RS_H REG_PIOC_SODR = 0x1 << 6
+
+  #endif
+
+#endif
+
 
 
 // These register enumerations are not all used, but kept for possible future use
@@ -254,6 +319,9 @@ class TFT_HX8357_Due
            fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color),
            fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, int16_t delta, uint16_t color),
 
+           drawEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color),
+           fillEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color),
+
            drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color),
            fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color),
 
@@ -331,7 +399,7 @@ class TFT_HX8357_Due
   uint32_t glyphBitmap, glyphTable;
 
   uint32_t fgA, fgB, fgC, fgD, bgA, bgB, bgC, bgD; // Pre-computed colour bit patterns
-  uint32_t lo1A, lo1C, lo1D, lo2A, lo2C, lo2D; // Pre-computed byte bit patterns
+  uint32_t lo1A, lo1B, lo1C, lo1D, lo2A, lo2B, lo2C, lo2D; // Pre-computed byte bit patterns
   uint8_t  glyph_ab,  // glyph height above baseline
            glyph_bb,  // glyph height below baseline
            textfont,  // Current selected font
