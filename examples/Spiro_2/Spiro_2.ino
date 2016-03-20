@@ -16,7 +16,7 @@ uint16_t x0 = 0, x1 = 0, yy0 = 0, yy1 = 0;
 
 void setup()
 {
-  randomSeed(analogRead(A0));
+  randomSeed(analogRead(A5));
   pinMode(7, OUTPUT);
   digitalWrite(7, LOW);
   delay(10);

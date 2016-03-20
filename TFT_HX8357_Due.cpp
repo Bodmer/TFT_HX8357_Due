@@ -762,6 +762,7 @@ void TFT_HX8357_Due::drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16
 // Draw a rounded rectangle
 void TFT_HX8357_Due::drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color)
 {
+  if (w<2*r || h<2*r) return; // Stop iteration problems on corners
   // smarter version
   drawFastHLine(x + r  , y    , w - r - r, color); // Top
   drawFastHLine(x + r  , y + h - 1, w - r - r, color); // Bottom
@@ -781,6 +782,8 @@ void TFT_HX8357_Due::drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, i
 // Fill a rounded rectangle
 void TFT_HX8357_Due::fillRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color)
 {
+  if (w<2*r || h<2*r) return; // Stop iteration problems on corners
+
   // smarter version
   fillRect(x + r, y, w - r - r, h, color);
 
@@ -1866,38 +1869,45 @@ void TFT_HX8357_Due::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16
   uint32_t hw= h*w;
 
 #ifdef ILI9481_8BIT
-  while (hw>15) { hw-=16;
-    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
-    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
-    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
-    fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
-  }
-  while (hw--) { fgWrite(); WR_SB; }
-#else
-  fgWrite();
-  while (hw>47) { hw-=48; // Screen width/10
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-  }
+  if ((color>>8) != (color&0xFF)) {
+    while (hw>15) { hw-=16;
+      fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+      fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+      fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+      fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB; fgWrite();WR_SB;
+    }
+    while (hw--) { fgWrite(); WR_SB; }
+    }
+  else {
+    hw = hw<<1;
+#endif
+    fgWrite();
+    while (hw>47) { hw-=48; // Screen width/10
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+    }
 
-  while (hw>15) { hw-=16;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-    WR_STB;WR_STB;WR_STB;WR_STB;
-  }
+    while (hw>15) { hw-=16;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+      WR_STB;WR_STB;WR_STB;WR_STB;
+    }
 
-  while(hw--) { WR_STB;}
+    while(hw--) { WR_STB;}
+
+#ifdef ILI9481_8BIT
+  }
 #endif
 
   CS_H;
@@ -3171,6 +3181,12 @@ inline void TFT_HX8357_Due::write16(uint16_t word)
 
   WR_STB;
 
+  //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
+  //                      B                           Marker for register bits used
+  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+  //                   C CCCCCC                     
+  REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
+
   //                                           Port.bit
   if (word&0x0080) REG_PIOC_SODR = 0x1 << 23;  // C.23
   if (word&0x0040) REG_PIOC_SODR = 0x1 << 24;  // C.24
@@ -3383,7 +3399,7 @@ void TFT_HX8357_Due::ramwr(void)
 {
   //                |       |       |       |         Ruler for byte MS bits 31, 23, 15 and 7
   //                      B                           Marker for register bits used
-  REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
+//REG_PIOB_CODR = 0b00000010000000000000000000000000; // Clear data bits
   //                   C CCCCCC                     
   REG_PIOC_CODR = 0b00010111111000000000000000000000; // Clear data bits
 

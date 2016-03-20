@@ -57,7 +57,7 @@ int16_t rscore = 4;
 
 void setup(void) {
   
-  randomSeed(analogRead(0)*analogRead(1));
+  randomSeed(analogRead(5)*analogRead(6));
    
   tft.init();
 

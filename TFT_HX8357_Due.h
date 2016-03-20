@@ -136,11 +136,11 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
   #define WR_H REG_PIOA_SODR = 0x1 << 24
 
 // Write strobe low and then high
-  #define WR_STB REG_PIOA_CODR = 0x1 << 24;  REG_PIOA_SODR = 0x1 << 24;
+  #define WR_STB REG_PIOA_CODR = 0x1 << 24; REG_PIOA_CODR = 0x1 << 24; REG_PIOA_CODR = 0x1 << 24;   REG_PIOA_SODR = 0x1 << 24;
 
 // Short write strobe
 // Use where write is already set low during data setup
-  #define WR_SB  REG_PIOA_SODR = 0x1 << 24;
+  #define WR_SB  REG_PIOA_CODR = 0x1 << 24; REG_PIOA_CODR = 0x1 << 24; REG_PIOA_SODR = 0x1 << 24;
 
 // Set RD low
   #define RD_L REG_PIOA_CODR = 0x1 << 16

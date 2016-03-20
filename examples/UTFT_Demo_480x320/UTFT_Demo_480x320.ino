@@ -36,7 +36,7 @@ uint32_t runTime = 0;
 
 void setup()
 {
-  randomSeed(analogRead(0));
+  randomSeed(analogRead(5));
   Serial.begin(38400);
 // Setup the LCD
   tft.init();
