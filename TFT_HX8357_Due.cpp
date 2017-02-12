@@ -2461,7 +2461,7 @@ int16_t TFT_HX8357_Due::drawString(char *string, int16_t poX, int16_t poY, int16
 {
   int16_t sumX = 0;
   uint8_t padding = 1, baseline = 0;
-  uint16_t cwidth = 0;
+  uint16_t cwidth  = textWidth(string, font); // Find the pixel width of the string in the font
   uint16_t cheight = 0;
 
 #ifdef LOAD_GFXFF
@@ -2482,9 +2482,6 @@ int16_t TFT_HX8357_Due::drawString(char *string, int16_t poX, int16_t poY, int16
 
   if (textdatum || padX)
   {
-    // Find the pixel width of the string in the font
-    cwidth  = textWidth(string, font);
-
     // If it is not font 1 (GLCD or free font) get the basline and pixel height of the font
     if (font!=1) {
       cheight = fontHeight(font);
@@ -2524,7 +2521,9 @@ int16_t TFT_HX8357_Due::drawString(char *string, int16_t poX, int16_t poY, int16
 
     }
 
-    switch(textdatum) {
+    if (textdatum != TL_DATUM)
+    {
+     switch(textdatum) {
       case TC_DATUM:
         poX -= cwidth/2;
         padding += 1;
@@ -2575,6 +2574,7 @@ int16_t TFT_HX8357_Due::drawString(char *string, int16_t poX, int16_t poY, int16
         poY -= baseline;
         padding += 2;
         break;
+     }
     }
     // Check coordinates are OK, adjust if not
     if (poX < 0) poX = 0;
