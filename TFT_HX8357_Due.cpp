@@ -2521,9 +2521,7 @@ int16_t TFT_HX8357_Due::drawString(char *string, int16_t poX, int16_t poY, int16
 
     }
 
-    if (textdatum != TL_DATUM)
-    {
-     switch(textdatum) {
+    switch(textdatum) {
       case TC_DATUM:
         poX -= cwidth/2;
         padding += 1;
@@ -2574,8 +2572,8 @@ int16_t TFT_HX8357_Due::drawString(char *string, int16_t poX, int16_t poY, int16
         poY -= baseline;
         padding += 2;
         break;
-     }
     }
+
     // Check coordinates are OK, adjust if not
     if (poX < 0) poX = 0;
     if (poX+cwidth>_width)   poX = _width - cwidth;
