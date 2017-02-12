@@ -236,23 +236,7 @@ void TFT_HX8357_Due::begin(void)
 ***************************************************************************************/
 void TFT_HX8357_Due::init(void)
 {
-  pinMode(_rst, OUTPUT);
-  digitalWrite(_rst, HIGH);
-
-  pinMode(_rs, OUTPUT);
-  pinMode(_cs, OUTPUT);
-  pinMode(_wr, OUTPUT);
-
-  digitalWrite(_rs, HIGH);
-
-  digitalWrite(_cs, HIGH);
-
-  digitalWrite(_wr, HIGH);
-
-  pinMode(_fcs, OUTPUT);
-  digitalWrite(_fcs, HIGH); // Stop line floating
-  pinMode(A0, OUTPUT);
-  digitalWrite(A0, HIGH);
+  //Pins are configured in constructor
 
   // toggle RST low to reset
     digitalWrite(_rst, HIGH);
