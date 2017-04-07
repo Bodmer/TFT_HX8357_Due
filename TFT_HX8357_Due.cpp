@@ -89,10 +89,6 @@ TFT_HX8357_Due::TFT_HX8357_Due(int16_t w, int16_t h)
   _rst  = A4;
   _wr   = A1;
   _fcs  = A3; //Unused FLASH chip select
-
-  // Set RD high as we do not use it in this version of the library
-  pinMode(A0, OUTPUT);
-  digitalWrite(A0, HIGH);
 #endif
 
   pinMode(_rst, OUTPUT);
@@ -236,12 +232,16 @@ void TFT_HX8357_Due::begin(void)
 ***************************************************************************************/
 void TFT_HX8357_Due::init(void)
 {
-  //Pins are configured in constructor
+#ifdef ILI9481_8BIT
+    // Set RD high as we do not use it in this version of the library
+    pinMode(A0, OUTPUT);
+    digitalWrite(A0, HIGH);
+#endif
 
   // toggle RST low to reset
     digitalWrite(_rst, HIGH);
     delay(50);
-    //digitalWrite(_rst, LOW);
+    digitalWrite(_rst, LOW);
     delay(10);
     digitalWrite(_rst, HIGH);
     delay(10);
